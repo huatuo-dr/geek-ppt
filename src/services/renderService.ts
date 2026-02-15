@@ -18,6 +18,7 @@ import type { RenderRequest, RenderResponse } from "@/types";
 import { uid } from "@/lib/id";
 import { getPlainStyles, getPlainWrapperClass } from "@/plugins/plain/plainStyles";
 import { getCoolStyles, getCoolWrapperClass } from "@/plugins/cool/coolStyles";
+import { getTorrentStyles, getTorrentWrapperClass, getTorrentInnerHtml, torrentPreprocess } from "@/plugins/torrent/torrentStyles";
 
 // ---------------------------------------------------------------------------
 // Mermaid helpers
@@ -126,22 +127,40 @@ const processor = unified()
 async function render(req: RenderRequest): Promise<RenderResponse> {
   const start = performance.now();
   try {
-    // 1. Extract mermaid blocks before unified pipeline (Shiki won't touch them)
-    const { markdown: cleanMd, blocks: mermaidBlocks } = extractMermaidBlocks(req.markdown);
+    // 1. Torrent-specific: merge consecutive lines without blank line
+    const preprocessed = req.pluginId === "torrent-renderer"
+      ? torrentPreprocess(req.markdown)
+      : req.markdown;
 
-    // 2. Run unified pipeline (remark → rehype → Shiki → stringify)
+    // 2. Extract mermaid blocks before unified pipeline (Shiki won't touch them)
+    const { markdown: cleanMd, blocks: mermaidBlocks } = extractMermaidBlocks(preprocessed);
+
+    // 3. Run unified pipeline (remark → rehype → Shiki → stringify)
     const file = await processor.process(cleanMd);
     let rawHtml = String(file);
 
-    // 3. Render mermaid blocks to SVG and inject
+    // 4. Render mermaid blocks to SVG and inject
     rawHtml = await injectMermaidSvg(rawHtml, mermaidBlocks, req.pluginId);
 
-    const isPlain = req.pluginId === "plain-renderer";
-    const css = isPlain ? getPlainStyles() : getCoolStyles();
-    const wrapperClass = isPlain ? getPlainWrapperClass() : getCoolWrapperClass();
+    // Resolve plugin-specific styles, wrapper class, and inner HTML structure
+    let css: string;
+    let wrapperClass: string;
+    let inner: string;
 
-    // Cool renderer needs an inner content wrapper for flex centering
-    const inner = isPlain ? rawHtml : `<div class="cool-scroll"><div class="cool-content">${rawHtml}</div></div>`;
+    if (req.pluginId === "plain-renderer") {
+      css = getPlainStyles();
+      wrapperClass = getPlainWrapperClass();
+      inner = rawHtml;
+    } else if (req.pluginId === "torrent-renderer") {
+      css = getTorrentStyles();
+      wrapperClass = getTorrentWrapperClass();
+      inner = getTorrentInnerHtml(rawHtml);
+    } else {
+      css = getCoolStyles();
+      wrapperClass = getCoolWrapperClass();
+      inner = `<div class="cool-scroll"><div class="cool-content">${rawHtml}</div></div>`;
+    }
+
     const html = `<div class="${wrapperClass}">${inner}</div>`;
     const timeMs = Math.round(performance.now() - start);
 
