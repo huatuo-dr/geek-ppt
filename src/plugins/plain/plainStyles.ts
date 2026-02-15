@@ -42,6 +42,10 @@ export function getPlainStyles(): string {
 .plain-slide td { padding: 8px 12px; border: 1px solid #e5e7eb; }
 .plain-slide tr:nth-child(even) { background: #f9fafb; }
 .plain-slide hr { border: none; border-top: 1px solid #d1d5db; margin: 1.5em 0; width: 100%; }
+/* Mermaid diagrams */
+.plain-slide .mermaid-container { margin: 1em 0; display: flex; justify-content: center; }
+.plain-slide .mermaid-container svg { max-width: 100%; height: auto; }
+.plain-slide .mermaid-error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; border-radius: 8px; padding: 12px 16px; margin: 1em 0; font-size: 0.85em; }
 `;
 }
 

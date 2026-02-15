@@ -260,6 +260,122 @@ public class StreamDemo {
     {
       slideId: uid(),
       order: 7,
+      title: "流程图与时序图",
+      markdownContent: `# 流程图与时序图
+
+## 流程图
+
+\`\`\`mermaid
+flowchart TD
+    A[开始] --> B{条件判断}
+    B -->|是| C[执行操作A]
+    B -->|否| D[执行操作B]
+    C --> E[合并结果]
+    D --> E
+    E --> F[结束]
+\`\`\`
+
+## 时序图
+
+\`\`\`mermaid
+sequenceDiagram
+    participant U as 用户
+    participant E as 编辑器
+    participant R as 渲染服务
+    U->>E: 输入 Markdown
+    E->>R: 请求渲染
+    R-->>E: 返回 HTML + CSS
+    E-->>U: 显示预览
+\`\`\`
+`,
+      notes: "",
+      template: "content",
+    },
+    {
+      slideId: uid(),
+      order: 8,
+      title: "数据图表",
+      markdownContent: `# 数据图表
+
+## 饼图
+
+\`\`\`mermaid
+pie title 技术栈占比
+    "React" : 35
+    "TypeScript" : 25
+    "Tailwind CSS" : 20
+    "其他" : 20
+\`\`\`
+
+## 柱形图与曲线图
+
+\`\`\`mermaid
+xychart-beta
+    title "Monthly Traffic"
+    x-axis [Jan, Feb, Mar, Apr, May, Jun]
+    y-axis "Visits (k)" 0 --> 120
+    bar [30, 45, 62, 78, 95, 110]
+    line [30, 45, 62, 78, 95, 110]
+\`\`\`
+`,
+      notes: "",
+      template: "content",
+    },
+    {
+      slideId: uid(),
+      order: 9,
+      title: "HTML 与 CSS",
+      markdownContent: `# HTML 与 CSS
+
+Markdown 支持直接嵌入 HTML 和 CSS，实现更灵活的排版。
+
+## 内联样式
+
+<span style="color: #ef4444; font-size: 1.4em; font-weight: bold;">红色加粗文字</span>、
+<span style="background: linear-gradient(90deg, #8b5cf6, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.4em; font-weight: bold;">渐变文字效果</span>
+
+## 多栏布局
+
+<div style="display: flex; gap: 12px; margin: 12px 0;">
+  <div style="flex: 1; background: #dbeafe; padding: 14px; border-radius: 10px; color: #1e3a5f; text-align: center;">
+    <strong>功能 A</strong><br/>快速编辑
+  </div>
+  <div style="flex: 1; background: #fce7f3; padding: 14px; border-radius: 10px; color: #5f1e3a; text-align: center;">
+    <strong>功能 B</strong><br/>实时预览
+  </div>
+  <div style="flex: 1; background: #d1fae5; padding: 14px; border-radius: 10px; color: #1e5f3a; text-align: center;">
+    <strong>功能 C</strong><br/>一键导出
+  </div>
+</div>
+
+## 自定义样式
+
+<style>
+.demo-badge {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 999px;
+  font-size: 0.85em;
+  font-weight: 600;
+  margin: 4px;
+}
+.badge-blue   { background: #3b82f6; color: #fff; }
+.badge-green  { background: #22c55e; color: #fff; }
+.badge-purple { background: #a855f7; color: #fff; }
+.badge-amber  { background: #f59e0b; color: #fff; }
+</style>
+
+<span class="demo-badge badge-blue">React</span>
+<span class="demo-badge badge-green">TypeScript</span>
+<span class="demo-badge badge-purple">Vite</span>
+<span class="demo-badge badge-amber">Tailwind</span>
+`,
+      notes: "",
+      template: "content",
+    },
+    {
+      slideId: uid(),
+      order: 10,
       title: "综合展示",
       markdownContent: `# 综合展示
 

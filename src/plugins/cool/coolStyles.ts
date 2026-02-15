@@ -118,6 +118,10 @@ export function getCoolStyles(): string {
 .cool-slide td { padding: 10px 14px; border: 1px solid rgba(255,255,255,0.06); }
 .cool-slide tr:hover { background: rgba(255,255,255,0.04); }
 .cool-slide hr { border: none; height: 2px; background: linear-gradient(90deg, transparent, #8b5cf6, #ec4899, transparent); margin: 2em 0; width: 100%; }
+/* Mermaid diagrams */
+.cool-slide .mermaid-container { margin: 1em 0; display: flex; justify-content: center; }
+.cool-slide .mermaid-container svg { max-width: 100%; height: auto; }
+.cool-slide .mermaid-error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; border-radius: 8px; padding: 12px 16px; margin: 1em 0; font-size: 0.85em; }
 /* Animations */
 @keyframes coolFadeIn {
   from { opacity: 0; transform: translateY(12px); }

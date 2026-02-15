@@ -2,6 +2,7 @@
  * RenderService — manages markdown rendering.
  * Uses main-thread async rendering with the unified/remark pipeline.
  * Code blocks are highlighted by Shiki via @shikijs/rehype.
+ * Mermaid diagrams are rendered to SVG via the mermaid library.
  */
 
 import { unified } from "unified";
@@ -12,10 +13,79 @@ import rehypeShiki from "@shikijs/rehype";
 import rehypeStringify from "rehype-stringify";
 import type { Root, Element } from "hast";
 import { visit } from "unist-util-visit";
+import mermaid from "mermaid";
 import type { RenderRequest, RenderResponse } from "@/types";
 import { uid } from "@/lib/id";
 import { getPlainStyles, getPlainWrapperClass } from "@/plugins/plain/plainStyles";
 import { getCoolStyles, getCoolWrapperClass } from "@/plugins/cool/coolStyles";
+
+// ---------------------------------------------------------------------------
+// Mermaid helpers
+// ---------------------------------------------------------------------------
+
+let lastMermaidTheme: string | null = null;
+
+/** (Re-)initialize mermaid when theme changes */
+function ensureMermaidInit(isDark: boolean) {
+  const theme = isDark ? "dark" : "default";
+  if (lastMermaidTheme === theme) return;
+  mermaid.initialize({
+    startOnLoad: false,
+    theme,
+    securityLevel: "loose",
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  });
+  lastMermaidTheme = theme;
+}
+
+/**
+ * Extract ```mermaid code blocks from raw markdown, replace with HTML
+ * placeholders so Shiki won't process them.
+ */
+function extractMermaidBlocks(markdown: string): { markdown: string; blocks: string[] } {
+  const blocks: string[] = [];
+  const processed = markdown.replace(/```mermaid\s*\n([\s\S]*?)```/g, (_match, code: string) => {
+    const idx = blocks.length;
+    blocks.push(code.trim());
+    // Raw HTML placeholder — survives remark-rehype with allowDangerousHtml
+    return `<div class="mermaid-placeholder" data-mermaid-idx="${idx}"></div>`;
+  });
+  return { markdown: processed, blocks };
+}
+
+/** Render extracted mermaid blocks to SVG and replace placeholders in HTML */
+async function injectMermaidSvg(
+  html: string,
+  blocks: string[],
+  pluginId: string,
+): Promise<string> {
+  if (blocks.length === 0) return html;
+
+  const isDark = pluginId !== "plain-renderer";
+  ensureMermaidInit(isDark);
+
+  let result = html;
+  for (let i = 0; i < blocks.length; i++) {
+    const placeholder = `<div class="mermaid-placeholder" data-mermaid-idx="${i}"></div>`;
+    try {
+      const renderId = `mmd-${Date.now()}-${i}`;
+      const { svg } = await mermaid.render(renderId, blocks[i]!);
+      result = result.replace(placeholder, `<div class="mermaid-container">${svg}</div>`);
+    } catch (err) {
+      console.warn("[mermaid] render failed for block", i, ":", err);
+      const msg = err instanceof Error ? err.message : String(err);
+      result = result.replace(
+        placeholder,
+        `<div class="mermaid-error">Mermaid 渲染失败: ${msg}</div>`,
+      );
+    }
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// Rehype plugins
+// ---------------------------------------------------------------------------
 
 /** Rehype plugin: force all <a> tags to open in a new tab */
 function rehypeExternalLinks() {
@@ -29,6 +99,10 @@ function rehypeExternalLinks() {
     });
   };
 }
+
+// ---------------------------------------------------------------------------
+// Unified pipeline
+// ---------------------------------------------------------------------------
 
 /** Build the unified pipeline with Shiki code highlighting */
 const processor = unified()
@@ -45,11 +119,22 @@ const processor = unified()
   .use(rehypeExternalLinks)
   .use(rehypeStringify, { allowDangerousHtml: true });
 
+// ---------------------------------------------------------------------------
+// Render
+// ---------------------------------------------------------------------------
+
 async function render(req: RenderRequest): Promise<RenderResponse> {
   const start = performance.now();
   try {
-    const file = await processor.process(req.markdown);
-    const rawHtml = String(file);
+    // 1. Extract mermaid blocks before unified pipeline (Shiki won't touch them)
+    const { markdown: cleanMd, blocks: mermaidBlocks } = extractMermaidBlocks(req.markdown);
+
+    // 2. Run unified pipeline (remark → rehype → Shiki → stringify)
+    const file = await processor.process(cleanMd);
+    let rawHtml = String(file);
+
+    // 3. Render mermaid blocks to SVG and inject
+    rawHtml = await injectMermaidSvg(rawHtml, mermaidBlocks, req.pluginId);
 
     const isPlain = req.pluginId === "plain-renderer";
     const css = isPlain ? getPlainStyles() : getCoolStyles();

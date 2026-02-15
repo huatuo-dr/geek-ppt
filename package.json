@@ -29,6 +29,7 @@
     "codemirror": "^6.0.2",
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
+    "mermaid": "^11.12.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "rehype-stringify": "^10.0.1",
