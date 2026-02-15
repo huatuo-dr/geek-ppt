@@ -10,10 +10,25 @@ import remarkGfm from "remark-gfm";
 import remarkRehype from "remark-rehype";
 import rehypeShiki from "@shikijs/rehype";
 import rehypeStringify from "rehype-stringify";
+import type { Root, Element } from "hast";
+import { visit } from "unist-util-visit";
 import type { RenderRequest, RenderResponse } from "@/types";
 import { uid } from "@/lib/id";
 import { getPlainStyles, getPlainWrapperClass } from "@/plugins/plain/plainStyles";
 import { getCoolStyles, getCoolWrapperClass } from "@/plugins/cool/coolStyles";
+
+/** Rehype plugin: force all <a> tags to open in a new tab */
+function rehypeExternalLinks() {
+  return (tree: Root) => {
+    visit(tree, "element", (node: Element) => {
+      if (node.tagName === "a") {
+        node.properties ??= {};
+        node.properties["target"] = "_blank";
+        node.properties["rel"] = "noopener noreferrer";
+      }
+    });
+  };
+}
 
 /** Build the unified pipeline with Shiki code highlighting */
 const processor = unified()
@@ -27,6 +42,7 @@ const processor = unified()
     },
     defaultColor: false,
   })
+  .use(rehypeExternalLinks)
   .use(rehypeStringify, { allowDangerousHtml: true });
 
 async function render(req: RenderRequest): Promise<RenderResponse> {
