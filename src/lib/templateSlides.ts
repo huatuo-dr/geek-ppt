@@ -300,23 +300,48 @@ sequenceDiagram
 ## 饼图
 
 \`\`\`mermaid
-pie title 技术栈占比
+pie title Tech Stack
     "React" : 35
     "TypeScript" : 25
     "Tailwind CSS" : 20
-    "其他" : 20
+    "Other" : 20
 \`\`\`
 
-## 柱形图与曲线图
+## 曲线图
 
 \`\`\`mermaid
 xychart-beta
-    title "Monthly Traffic"
-    x-axis [Jan, Feb, Mar, Apr, May, Jun]
-    y-axis "Visits (k)" 0 --> 120
-    bar [30, 45, 62, 78, 95, 110]
-    line [30, 45, 62, 78, 95, 110]
+    title "Quarterly Trends"
+    x-axis [Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8, Q9, Q10]
+    y-axis "Value" 0 --> 90
+    line [12, 25, 18, 34, 42, 36, 55, 48, 63, 72]
+    line [8, 15, 28, 22, 35, 48, 40, 56, 52, 68]
+    line [20, 14, 30, 40, 28, 52, 46, 62, 58, 80]
 \`\`\`
+
+<div style="display:flex;gap:20px;justify-content:center;font-size:0.75em;opacity:0.85;margin-top:2px;">
+<span><span style="color:#fbbf24">━━</span> Revenue</span>
+<span><span style="color:#8b5cf6">━━</span> Cost</span>
+<span><span style="color:#ec4899">━━</span> Profit</span>
+</div>
+
+## 柱形图
+
+\`\`\`mermaid
+xychart-beta
+    title "Product Comparison"
+    x-axis [Alpha, Beta, Gamma, Delta, Epsilon]
+    y-axis "Score" 0 --> 100
+    bar [45, 62, 38, 75, 55]
+    bar [30, 48, 56, 42, 68]
+    bar [52, 35, 65, 58, 40]
+\`\`\`
+
+<div style="display:flex;gap:20px;justify-content:center;font-size:0.75em;opacity:0.85;margin-top:2px;">
+<span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#fbbf24;vertical-align:middle;margin-right:4px;"></span> Design</span>
+<span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#8b5cf6;vertical-align:middle;margin-right:4px;"></span> Engineering</span>
+<span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#ec4899;vertical-align:middle;margin-right:4px;"></span> Marketing</span>
+</div>
 `,
       notes: "",
       template: "content",
