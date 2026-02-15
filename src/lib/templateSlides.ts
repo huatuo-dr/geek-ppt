@@ -147,6 +147,69 @@ def quicksort(arr):
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 \`\`\`
+
+## C
+
+\`\`\`c
+#include <stdio.h>
+
+int main() {
+    int arr[] = {5, 3, 8, 1, 2};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < n - i - 1; j++)
+            if (arr[j] > arr[j + 1]) {
+                int tmp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = tmp;
+            }
+    for (int i = 0; i < n; i++)
+        printf("%d ", arr[i]);
+    return 0;
+}
+\`\`\`
+
+## Go
+
+\`\`\`go
+package main
+
+import "fmt"
+
+func twoSum(nums []int, target int) (int, int) {
+    m := make(map[int]int)
+    for i, v := range nums {
+        if j, ok := m[target-v]; ok {
+            return j, i
+        }
+        m[v] = i
+    }
+    return -1, -1
+}
+
+func main() {
+    a, b := twoSum([]int{2, 7, 11, 15}, 9)
+    fmt.Println(a, b) // 0 1
+}
+\`\`\`
+
+## Java
+
+\`\`\`java
+import java.util.stream.Collectors;
+import java.util.List;
+
+public class StreamDemo {
+    public static void main(String[] args) {
+        List<String> names = List.of("Alice", "Bob", "Charlie", "David");
+        String result = names.stream()
+            .filter(n -> n.length() > 3)
+            .map(String::toUpperCase)
+            .collect(Collectors.joining(", "));
+        System.out.println(result); // ALICE, CHARLIE, DAVID
+    }
+}
+\`\`\`
 `,
       notes: "",
       template: "content",
@@ -180,6 +243,23 @@ def quicksort(arr):
     {
       slideId: uid(),
       order: 6,
+      title: "图片",
+      markdownContent: `# 图片
+
+## 基础图片
+
+![Geek PPT Logo](https://github.com/huatuo-dr/geek-ppt/blob/master/public/logo.png?raw=true)
+
+## 带链接的图片
+
+[![Geek PPT Logo](https://github.com/huatuo-dr/geek-ppt/blob/master/public/logo.png?raw=true)](https://github.com/huatuo-dr/geek-ppt)
+`,
+      notes: "",
+      template: "content",
+    },
+    {
+      slideId: uid(),
+      order: 7,
       title: "综合展示",
       markdownContent: `# 综合展示
 

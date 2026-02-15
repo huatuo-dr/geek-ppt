@@ -9,10 +9,20 @@ export function getCoolStyles(): string {
   height: 100%;
   box-sizing: border-box;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
   position: relative;
   overflow: hidden;
+}
+/* Scroll layer — sits above glow orbs, handles overflow scrolling */
+.cool-slide > .cool-scroll {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 /* Ambient glow orbs */
 .cool-slide::before {
@@ -34,7 +44,7 @@ export function getCoolStyles(): string {
   pointer-events: none;
 }
 /* Content container — centered, glass effect */
-.cool-slide > .cool-content {
+.cool-scroll > .cool-content {
   position: relative;
   z-index: 1;
   max-width: 85%;
@@ -50,6 +60,9 @@ export function getCoolStyles(): string {
   display: flex;
   flex-direction: column;
   align-items: center;
+  /* Safe centering: auto margin centers when space available, scrolls from top when overflowing */
+  margin: auto;
+  flex-shrink: 0;
 }
 .cool-slide h1 {
   font-size: 3em; font-weight: 800; margin: 0 0 0.3em;

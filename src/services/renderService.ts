@@ -56,7 +56,7 @@ async function render(req: RenderRequest): Promise<RenderResponse> {
     const wrapperClass = isPlain ? getPlainWrapperClass() : getCoolWrapperClass();
 
     // Cool renderer needs an inner content wrapper for flex centering
-    const inner = isPlain ? rawHtml : `<div class="cool-content">${rawHtml}</div>`;
+    const inner = isPlain ? rawHtml : `<div class="cool-scroll"><div class="cool-content">${rawHtml}</div></div>`;
     const html = `<div class="${wrapperClass}">${inner}</div>`;
     const timeMs = Math.round(performance.now() - start);
 
