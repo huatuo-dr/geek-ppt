@@ -288,6 +288,10 @@ async function render(req: RenderRequest): Promise<RenderResponse> {
       css = getTorrentStyles();
       wrapperClass = getTorrentWrapperClass();
       inner = getTorrentInnerHtml(rawHtml);
+    } else if (req.customCss) {
+      css = req.customCss;
+      wrapperClass = "plain-slide"; // Reuse plain wrapper for now
+      inner = rawHtml;
     } else {
       css = getCoolStyles();
       wrapperClass = getCoolWrapperClass();
@@ -297,7 +301,7 @@ async function render(req: RenderRequest): Promise<RenderResponse> {
     const html = `<div class="${wrapperClass}">${inner}</div>`;
     const timeMs = Math.round(performance.now() - start);
 
-    return { id: req.id, html, css, timeMs };
+    return { id: req.id, html, css, timeMs, isCustom: !!req.customCss };
   } catch (err) {
     const timeMs = Math.round(performance.now() - start);
     return {
@@ -316,9 +320,10 @@ export function requestRender(
   pluginId: string,
   slideSize: { width: number; height: number },
   slideIndex: number,
+  customCss?: string,
 ): Promise<RenderResponse> {
   const id = uid();
-  const req: RenderRequest = { id, markdown, pluginId, slideSize, slideIndex };
+  const req: RenderRequest = { id, markdown, pluginId, slideSize, slideIndex, customCss };
   return render(req);
 }
 

@@ -8,17 +8,21 @@ import { saveProject, importProject, clearFileHandle } from "@/services/projectI
 import { exportPresentation } from "@/services/exportService";
 import { createTemplateSlides } from "@/lib/templateSlides";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { CustomThemeModal } from "./CustomThemeModal";
 import { useState, useRef, useEffect, useCallback } from "react";
 
 // ---------------------------------------------------------------------------
 // Pending action — what to do after the user confirms discard / save
 // ---------------------------------------------------------------------------
+const EMPTY_ARRAY: any[] = [];
 type PendingAction = "new" | "import" | "template" | null;
 
 export function Toolbar() {
   const projectName = useProjectStore((s) => s.project.name);
   const dirty = useProjectStore((s) => s.dirty);
   const pluginId = useProjectStore((s) => s.project.pluginConfig.activePluginId);
+  const customThemes = useProjectStore((s) => s.project.customThemes || EMPTY_ARRAY);
+  const deleteCustomTheme = useProjectStore((s) => s.deleteCustomTheme);
   const slideSize = useProjectStore((s) => s.project.slideSize);
   const project = useProjectStore((s) => s.project);
   const newProject = useProjectStore((s) => s.newProject);
@@ -65,6 +69,8 @@ export function Toolbar() {
   const executeTemplate = useCallback(() => {
     const slides = createTemplateSlides();
     const now = new Date().toISOString();
+    // Preserve existing custom themes when loading template
+    const existingThemes = useProjectStore.getState().project.customThemes || [];
     loadProject({
       projectId: "template",
       name: "语法模板预览",
@@ -72,6 +78,7 @@ export function Toolbar() {
       updatedAt: now,
       slides,
       pluginConfig: { activePluginId: pluginId },
+      customThemes: existingThemes,
       slideSize: { ...slideSize },
       formatVersion: 1,
     });
@@ -150,6 +157,10 @@ export function Toolbar() {
   const [showSizeMenu, setShowSizeMenu] = useState(false);
   const sizeMenuRef = useRef<HTMLDivElement>(null);
 
+  // --- Custom theme modal state ---
+  const [showCustomModal, setShowCustomModal] = useState(false);
+  const [editingThemeId, setEditingThemeId] = useState<string | null>(null);
+
   useEffect(() => {
     if (!showPluginMenu && !showSizeMenu) return;
     const handler = (e: MouseEvent) => {
@@ -165,7 +176,8 @@ export function Toolbar() {
   }, [showPluginMenu, showSizeMenu]);
 
   const plugins = getAllPlugins();
-  const currentPlugin = plugins.find((p) => p.pluginId === pluginId);
+  const currentPlugin = plugins.find((p) => p.pluginId === pluginId) ||
+    customThemes.find(t => t.themeId === pluginId);
 
   // --- Dialog text based on pending action ---
   const dialogMessages: Record<string, { title: string; message: string }> = {
@@ -196,7 +208,7 @@ export function Toolbar() {
         {/* Renderer dropdown */}
         <div className="relative" ref={pluginMenuRef}>
           <ToolbarButton
-            label={`渲染: ${currentPlugin?.displayName ?? pluginId}`}
+            label={`渲染: ${currentPlugin ? (('displayName' in currentPlugin) ? currentPlugin.displayName : (currentPlugin as any).displayName) : pluginId}`}
             onClick={() => setShowPluginMenu(!showPluginMenu)}
           />
           {showPluginMenu && (
@@ -209,14 +221,76 @@ export function Toolbar() {
                     setPluginConfig({ activePluginId: p.pluginId });
                     setShowPluginMenu(false);
                   }}
-                  className={`w-full text-left px-3 py-1.5 text-xs hover:bg-zinc-700 transition-colors ${
-                    p.pluginId === pluginId ? "text-indigo-300" : "text-zinc-300"
-                  }`}
+                  className={`w-full text-left px-3 py-1.5 text-xs hover:bg-zinc-700 transition-colors ${p.pluginId === pluginId ? "text-indigo-300" : "text-zinc-300"
+                    }`}
                 >
                   {p.displayName}
                   {p.pluginId === pluginId && <span className="ml-2 text-indigo-400">✓</span>}
                 </button>
               ))}
+
+              {/* Custom themes from project */}
+              {customThemes.length > 0 && (
+                <>
+                  <div className="h-px bg-zinc-700 my-1 mx-2" />
+                  {customThemes.map((t) => (
+                    <div key={t.themeId} className="group relative flex items-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPluginConfig({ activePluginId: t.themeId });
+                          setShowPluginMenu(false);
+                        }}
+                        className={`flex-1 text-left px-3 py-1.5 text-xs hover:bg-zinc-700 transition-colors ${t.themeId === pluginId ? "text-indigo-300" : "text-zinc-300"
+                          }`}
+                      >
+                        {t.displayName}
+                        {t.themeId === pluginId && <span className="ml-2 text-indigo-400">✓</span>}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm(`确定要删除样式 "${t.displayName}" 吗？`)) {
+                            deleteCustomTheme(t.themeId);
+                          }
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-red-400 transition-all ml-1"
+                        title="删除样式"
+                      >
+                        🗑
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingThemeId(t.themeId);
+                          setShowCustomModal(true);
+                          setShowPluginMenu(false);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-1.5 text-zinc-500 hover:text-indigo-400 transition-all"
+                        title="编辑样式"
+                      >
+                        ✎
+                      </button>
+                    </div>
+                  ))}
+                </>
+              )}
+
+              <div className="h-px bg-zinc-700 my-1 mx-2" />
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingThemeId(null);
+                  setShowCustomModal(true);
+                  setShowPluginMenu(false);
+                }}
+                className="w-full text-left px-3 py-1.5 text-xs text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200 transition-colors italic"
+              >
+                + 自定义渲染...
+              </button>
+
             </div>
           )}
         </div>
@@ -240,9 +314,8 @@ export function Toolbar() {
                     setSlideSize(preset);
                     setShowSizeMenu(false);
                   }}
-                  className={`w-full text-left px-3 py-1.5 text-xs hover:bg-zinc-700 transition-colors ${
-                    preset.label === slideSize.label ? "text-indigo-300" : "text-zinc-300"
-                  }`}
+                  className={`w-full text-left px-3 py-1.5 text-xs hover:bg-zinc-700 transition-colors ${preset.label === slideSize.label ? "text-indigo-300" : "text-zinc-300"
+                    }`}
                 >
                   {preset.label} ({preset.width}×{preset.height})
                   {preset.label === slideSize.label && <span className="ml-2 text-indigo-400">✓</span>}
@@ -294,6 +367,16 @@ export function Toolbar() {
         cancelLabel="取消"
         onConfirm={executePending}
         onCancel={() => setPendingAction(null)}
+      />
+
+      {/* Custom theme editor modal */}
+      <CustomThemeModal
+        open={showCustomModal}
+        editingThemeId={editingThemeId}
+        onClose={() => {
+          setShowCustomModal(false);
+          setEditingThemeId(null);
+        }}
       />
     </>
   );

@@ -49,7 +49,7 @@ export async function packProject(project: Project): Promise<Blob> {
     notes: s.notes,
     template: s.template,
   }));
-  zip.file("project.json", JSON.stringify({ ...meta, slideOrder }, null, 2));
+  zip.file("project.json", JSON.stringify({ ...meta, slideOrder, customThemes: project.customThemes }, null, 2));
 
   // slides/*.md
   const slidesFolder = zip.folder("slides")!;
@@ -150,8 +150,8 @@ export async function unpackProject(blob: Blob): Promise<Project> {
   const slidesFolder = zip.folder("slides");
   const slideFiles = slidesFolder
     ? Object.keys(slidesFolder.files)
-        .filter((f) => f.startsWith("slides/") && f.endsWith(".md"))
-        .sort()
+      .filter((f) => f.startsWith("slides/") && f.endsWith(".md"))
+      .sort()
     : [];
 
   const slides = await Promise.all(
@@ -184,6 +184,7 @@ export async function unpackProject(blob: Blob): Promise<Project> {
     updatedAt: new Date().toISOString(),
     slides,
     pluginConfig: { activePluginId: lockJson.activePluginId || "plain-renderer" },
+    customThemes: metaJson.customThemes || [],
     slideSize: metaJson.slideSize || { width: 1920, height: 1080, label: "16:9" },
     formatVersion: metaJson.formatVersion || 1,
   };

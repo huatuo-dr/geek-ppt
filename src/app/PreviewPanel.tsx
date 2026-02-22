@@ -7,6 +7,7 @@ import { requestRender } from "@/services/renderService";
 export function PreviewPanel() {
   const slides = useProjectStore((s) => s.project.slides);
   const pluginId = useProjectStore((s) => s.project.pluginConfig.activePluginId);
+  const customThemes = useProjectStore((s) => s.project.customThemes);
   const slideSize = useProjectStore((s) => s.project.slideSize);
   const currentIndex = useEditorStore((s) => s.currentSlideIndex);
   const renderedHtml = usePreviewStore((s) => s.renderedHtml);
@@ -44,11 +45,13 @@ export function PreviewPanel() {
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
       setRendering(true);
+      const customTheme = (customThemes || []).find(t => t.themeId === pluginId);
       const resp = await requestRender(
         currentSlide.markdownContent,
         pluginId,
         slideSize,
         currentIndex,
+        customTheme?.css,
       );
       if (resp.error) {
         setRenderError(resp.error);

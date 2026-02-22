@@ -27,6 +27,7 @@ function createDefaultProject(): Project {
     updatedAt: now,
     slides: [createDefaultSlide(0)],
     pluginConfig: { activePluginId: DEFAULT_PLUGIN_ID },
+    customThemes: [],
     slideSize: { ...DEFAULT_SLIDE_SIZE },
     formatVersion: 1,
   };
@@ -52,6 +53,11 @@ export interface ProjectState {
   setProjectName: (name: string) => void;
   setSlideSize: (size: SlideSize) => void;
   setPluginConfig: (config: PluginConfig) => void;
+
+  // --- Custom Themes ---
+  addCustomTheme: (theme: CustomTheme) => void;
+  updateCustomTheme: (themeId: string, updates: Partial<CustomTheme>) => void;
+  deleteCustomTheme: (themeId: string) => void;
 
   // --- Slide CRUD ---
   addSlide: (afterIndex: number) => void;
@@ -96,6 +102,39 @@ export const useProjectStore = create<ProjectState>((set) => ({
     set((s) => ({
       dirty: true,
       project: { ...s.project, pluginConfig: config },
+    })),
+
+  // --- Custom Themes ---
+
+  addCustomTheme: (theme) =>
+    set((s) => ({
+      dirty: true,
+      project: {
+        ...s.project,
+        customThemes: [...(s.project.customThemes || []), theme],
+      },
+    })),
+
+  updateCustomTheme: (themeId, updates) =>
+    set((s) => ({
+      dirty: true,
+      project: {
+        ...s.project,
+        customThemes: (s.project.customThemes || []).map((t) =>
+          t.themeId === themeId ? { ...t, ...updates } : t,
+        ),
+      },
+    })),
+
+  deleteCustomTheme: (themeId) =>
+    set((s) => ({
+      dirty: true,
+      project: {
+        ...s.project,
+        customThemes: (s.project.customThemes || []).filter(
+          (t) => t.themeId !== themeId,
+        ),
+      },
     })),
 
   // --- Slide CRUD ---

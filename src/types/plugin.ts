@@ -39,6 +39,7 @@ export interface RenderRequest {
   id: string;
   markdown: string;
   pluginId: string;
+  customCss?: string;
   slideSize: { width: number; height: number };
   slideIndex: number;
 }
@@ -50,4 +51,5 @@ export interface RenderResponse {
   css: string;
   timeMs: number;
   error?: string;
+  isCustom?: boolean;
 }

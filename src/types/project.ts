@@ -20,6 +20,15 @@ export interface PluginConfig {
   activePluginId: string;
 }
 
+
+
+/** Custom CSS-based theme */
+export interface CustomTheme {
+  themeId: string;
+  displayName: string;
+  css: string;
+}
+
 /** Project root model */
 export interface Project {
   projectId: string;
@@ -28,6 +37,7 @@ export interface Project {
   updatedAt: string;
   slides: Slide[];
   pluginConfig: PluginConfig;
+  customThemes?: CustomTheme[];
   slideSize: SlideSize;
   formatVersion: number;
 }
