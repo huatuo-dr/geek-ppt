@@ -161,7 +161,9 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
         }
     };
 
-    const handleExport = () => {
+    const handleExport = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
         const themeData: CustomTheme = {
             themeId: editingThemeId || `custom-${uid()}`,
             displayName,
@@ -171,7 +173,9 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
         saveAs(blob, `${displayName || "style"}.geekstyle`);
     };
 
-    const handleImport = () => {
+    const handleImport = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
         const input = document.createElement("input");
         input.type = "file";
         input.accept = ".geekstyle, .json";
@@ -228,13 +232,13 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
                     </div>
                     <div className="flex items-center gap-2">
                         {editingThemeId && (
-                            <button onClick={handleDelete} className="px-3 py-1.5 text-xs text-red-400 hover:text-red-300 transition-colors mr-2">删除样式</button>
+                            <button type="button" onClick={handleDelete} className="px-3 py-1.5 text-xs text-red-400 hover:text-red-300 transition-colors mr-2">删除样式</button>
                         )}
-                        <button onClick={handleImport} className="px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors">导入主题</button>
-                        <button onClick={handleExport} className="px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors">导出主题</button>
+                        <button type="button" onClick={handleImport} className="px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors">导入主题</button>
+                        <button type="button" onClick={handleExport} className="px-3 py-1.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors">导出主题</button>
                         <div className="w-px h-4 bg-zinc-700 mx-1" />
-                        <button onClick={onClose} className="px-4 py-1.5 text-sm text-zinc-400 hover:text-zinc-200 transition-colors">取消</button>
-                        <button onClick={handleSave} className="px-6 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-md font-medium transition-all shadow-lg">保存并应用</button>
+                        <button type="button" onClick={onClose} className="px-4 py-1.5 text-sm text-zinc-400 hover:text-zinc-200 transition-colors">取消</button>
+                        <button type="button" onClick={handleSave} className="px-6 py-1.5 text-sm bg-indigo-600 hover:bg-indigo-500 text-white rounded-md font-medium transition-all shadow-lg">保存并应用</button>
                     </div>
                 </div>
 
@@ -249,6 +253,7 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
                             {STYLE_ELEMENTS.map(el => (
                                 <button
                                     key={el.id}
+                                    type="button"
                                     onClick={() => setSelectedElementId(el.id)}
                                     className={`w-full text-left px-4 py-3 text-sm transition-all border-l-2 ${selectedElementId === el.id
                                         ? "bg-indigo-600/10 text-indigo-400 border-indigo-500 font-medium"
