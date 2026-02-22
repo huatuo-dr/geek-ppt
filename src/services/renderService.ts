@@ -289,8 +289,10 @@ async function render(req: RenderRequest): Promise<RenderResponse> {
       wrapperClass = getTorrentWrapperClass();
       inner = getTorrentInnerHtml(rawHtml);
     } else if (req.customCss) {
-      css = req.customCss;
-      wrapperClass = "plain-slide"; // Reuse plain wrapper for now
+      // For custom CSS, we ensure base layout properties are present even if the user didn't specify them
+      const baseLayout = `.plain-slide { height: 100%; box-sizing: border-box; overflow-y: auto; }`;
+      css = baseLayout + "\n" + req.customCss;
+      wrapperClass = "plain-slide";
       inner = rawHtml;
     } else {
       css = getCoolStyles();

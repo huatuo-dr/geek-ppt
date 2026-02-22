@@ -20,7 +20,7 @@ interface StyleElement {
 }
 
 const STYLE_ELEMENTS: StyleElement[] = [
-    { id: "container", label: "PPT 容器/整体背景", selector: ".plain-slide", defaultCss: "background: #ffffff;\ncolor: #1a1a2e;\npadding: 48px 64px;\nfont-family: sans-serif;\nfont-size: 16px;\nline-height: 1.6;", previewMd: "# 容器样式展示\n这是背景和基础文字样式的综合预览。" },
+    { id: "container", label: "PPT 容器/整体背景", selector: ".plain-slide", defaultCss: "background: #ffffff;\ncolor: #1a1a2e;\npadding: 48px 64px;\nfont-family: sans-serif;\nfont-size: 16px;\nline-height: 1.6;\nheight: 100%;\nbox-sizing: border-box;\noverflow-y: auto;", previewMd: "# 容器样式展示\n这是背景和基础文字样式的综合预览。" },
     { id: "h1", label: "一级标题 (h1)", selector: ".plain-slide h1", defaultCss: "font-size: 2.8em;\nfont-weight: 800;\nmargin: 0.2em 0 0.5em;\ncolor: #111827;\nline-height: 1.2;", previewMd: "# 这是一个非常长的一级标题示例查看换行表现" },
     { id: "h2", label: "二级标题 (h2)", selector: ".plain-slide h2", defaultCss: "font-size: 2.2em;\nfont-weight: 700;\nmargin: 0.8em 0 0.4em;\ncolor: #1f2937;", previewMd: "## 这是一个二级标题示例" },
     { id: "h3", label: "三级标题 (h3)", selector: ".plain-slide h3", defaultCss: "font-size: 1.8em;\nfont-weight: 700;\nmargin: 0.7em 0 0.4em;\ncolor: #374151;", previewMd: "### 这是一个三级标题示例" },
@@ -298,7 +298,7 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
                                 >
                                     <style>{previewCss}</style>
                                     <div
-                                        className="w-full h-full overflow-hidden"
+                                        className="w-full h-full overflow-y-auto"
                                         dangerouslySetInnerHTML={{ __html: previewHtml }}
                                     />
                                 </div>
