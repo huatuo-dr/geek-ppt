@@ -151,9 +151,10 @@ plugins/
 
 ---
 
-## 设计文档
+## 设计与部署
 
-完整的产品设计方案请参阅 [docs/设计方案.md](docs/设计方案.md)。
+- **产品设计** — 完整的产品设计方案请参阅 [docs/设计方案.md](docs/设计方案.md)
+- **线上预览** — 如何使用 GitHub Pages 部署本项目请参阅 **[GitHub Pages 使用指南](docs/GitHubPages使用指南.md)**
 
 ---
 
