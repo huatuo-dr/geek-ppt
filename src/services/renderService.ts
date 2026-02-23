@@ -20,6 +20,8 @@ import { getPlainStyles, getPlainWrapperClass } from "@/plugins/plain/plainStyle
 import { getCoolStyles, getCoolWrapperClass } from "@/plugins/cool/coolStyles";
 import { getTorrentStyles, getTorrentWrapperClass, getTorrentInnerHtml, torrentPreprocess } from "@/plugins/torrent/torrentStyles";
 
+export { getPlainStyles, getPlainWrapperClass, getCoolStyles, getCoolWrapperClass, getTorrentStyles, getTorrentWrapperClass, getTorrentInnerHtml, torrentPreprocess };
+
 // ---------------------------------------------------------------------------
 // Mermaid helpers
 // ---------------------------------------------------------------------------
@@ -260,41 +262,55 @@ const processor = unified()
 async function render(req: RenderRequest): Promise<RenderResponse> {
   const start = performance.now();
   try {
-    // 1. Torrent-specific: merge consecutive lines without blank line
-    const preprocessed = req.pluginId === "torrent-renderer"
+    // 1. Identify effective base renderer (standard or custom-defined via magic comment)
+    let effectiveBase = req.pluginId;
+    if (req.customCss) {
+      const match = req.customCss.match(/\/\*\s*@theme-base:\s*(\w+)\s*\*\//);
+      if (match?.[1]) {
+        effectiveBase = `${match[1]}-renderer`;
+      }
+    }
+
+    // 2. Pre-processing (torrent specific logic)
+    const preprocessed = effectiveBase === "torrent-renderer"
       ? torrentPreprocess(req.markdown)
       : req.markdown;
 
-    // 2. Extract mermaid blocks before unified pipeline (Shiki won't touch them)
+    // 3. Extract mermaid blocks
     const { markdown: cleanMd, blocks: mermaidBlocks } = extractMermaidBlocks(preprocessed);
 
-    // 3. Run unified pipeline (remark → rehype → Shiki → stringify)
+    // 4. Run unified pipeline
     const file = await processor.process(cleanMd);
     let rawHtml = String(file);
 
-    // 4. Render mermaid blocks to SVG and inject
-    rawHtml = await injectMermaidSvg(rawHtml, mermaidBlocks, req.pluginId);
+    // 5. Render/Inject mermaid
+    rawHtml = await injectMermaidSvg(rawHtml, mermaidBlocks, effectiveBase);
 
-    // Resolve plugin-specific styles, wrapper class, and inner HTML structure
-    let css: string;
+    // 6. Resolve final layout components
+    let css: string = req.customCss || "";
     let wrapperClass: string;
     let inner: string;
 
-    if (req.pluginId === "plain-renderer") {
-      css = getPlainStyles();
-      wrapperClass = getPlainWrapperClass();
-      inner = rawHtml;
-    } else if (req.pluginId === "torrent-renderer") {
-      css = getTorrentStyles();
+    if (effectiveBase === "torrent-renderer") {
+      // Always inject base + user overrides via cascade
+      css = req.customCss ? getTorrentStyles() + "\n" + css : getTorrentStyles();
       wrapperClass = getTorrentWrapperClass();
       inner = getTorrentInnerHtml(rawHtml);
+    } else if (effectiveBase === "cool-renderer") {
+      css = req.customCss ? getCoolStyles() + "\n" + css : getCoolStyles();
+      wrapperClass = getCoolWrapperClass();
+      inner = `<div class="cool-scroll"><div class="cool-content">${rawHtml}</div></div>`;
+    } else if (effectiveBase === "plain-renderer") {
+      css = req.customCss ? getPlainStyles() + "\n" + css : getPlainStyles();
+      wrapperClass = getPlainWrapperClass();
+      inner = rawHtml;
     } else if (req.customCss) {
-      // For custom CSS, we ensure base layout properties are present even if the user didn't specify them
-      const baseLayout = `.plain-slide { height: 100%; box-sizing: border-box; overflow-y: auto; }`;
-      css = baseLayout + "\n" + req.customCss;
-      wrapperClass = "plain-slide";
+      // Custom theme without explicit @theme-base tag -> default to plain layout
+      css = getPlainStyles() + "\n" + css;
+      wrapperClass = getPlainWrapperClass();
       inner = rawHtml;
     } else {
+      // Built-in plugin but ID not recognized or default fallback (Cool)
       css = getCoolStyles();
       wrapperClass = getCoolWrapperClass();
       inner = `<div class="cool-scroll"><div class="cool-content">${rawHtml}</div></div>`;

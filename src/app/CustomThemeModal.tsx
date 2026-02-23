@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useProjectStore } from "@/modules/projectStore";
-import { requestRender } from "@/services/renderService";
+import { requestRender, getPlainStyles, getCoolStyles, getTorrentStyles } from "@/services/renderService";
 import { uid } from "@/lib/id";
 import { saveAs } from "file-saver";
 import type { CustomTheme } from "@/types";
@@ -20,28 +20,28 @@ interface StyleElement {
 }
 
 const STYLE_ELEMENTS: StyleElement[] = [
-    { id: "container", label: "PPT 容器/整体背景", selector: ".plain-slide", defaultCss: "background: #ffffff;\ncolor: #1a1a2e;\npadding: 48px 64px;\nfont-family: sans-serif;\nfont-size: 16px;\nline-height: 1.6;\nheight: 100%;\nbox-sizing: border-box;\noverflow-y: auto;", previewMd: "# 容器样式展示\n这是背景和基础文字样式的综合预览。" },
-    { id: "h1", label: "一级标题 (h1)", selector: ".plain-slide h1", defaultCss: "font-size: 2.8em;\nfont-weight: 800;\nmargin: 0.2em 0 0.5em;\ncolor: #111827;\nline-height: 1.2;", previewMd: "# 这是一个非常长的一级标题示例查看换行表现" },
-    { id: "h2", label: "二级标题 (h2)", selector: ".plain-slide h2", defaultCss: "font-size: 2.2em;\nfont-weight: 700;\nmargin: 0.8em 0 0.4em;\ncolor: #1f2937;", previewMd: "## 这是一个二级标题示例" },
-    { id: "h3", label: "三级标题 (h3)", selector: ".plain-slide h3", defaultCss: "font-size: 1.8em;\nfont-weight: 700;\nmargin: 0.7em 0 0.4em;\ncolor: #374151;", previewMd: "### 这是一个三级标题示例" },
-    { id: "h4", label: "四级标题 (h4)", selector: ".plain-slide h4", defaultCss: "font-size: 1.5em;\nfont-weight: 600;\nmargin: 0.6em 0 0.3em;", previewMd: "#### 这是一个四级标题示例" },
-    { id: "h5", label: "五级标题 (h5)", selector: ".plain-slide h5", defaultCss: "font-size: 1.25em;\nfont-weight: 600;\nmargin: 0.5em 0 0.3em;", previewMd: "##### 这是一个五级标题示例" },
-    { id: "h6", label: "六级标题 (h6)", selector: ".plain-slide h6", defaultCss: "font-size: 1em;\nfont-weight: 600;\nmargin: 0.5em 0 0.3em;\ncolor: #6b7280;", previewMd: "###### 这是一个六级标题示例" },
-    { id: "hr", label: "分割线 (hr)", selector: ".plain-slide hr", defaultCss: "border: none;\nborder-top: 2px solid #e5e7eb;\nmargin: 2em 0;", previewMd: "上面是文字\n\n---\n\n下面是文字" },
-    { id: "paragraph", label: "正文段落 (p)", selector: ".plain-slide p", defaultCss: "margin: 0.8em 0;\nfont-size: 1em;\ncolor: #374151;", previewMd: "这是一段普通的正文内容示例。用于预览段落及其行高、字间距等渲染效果。" },
-    { id: "strong", label: "加粗 (strong)", selector: ".plain-slide strong", defaultCss: "font-weight: 800;\ncolor: #000;", previewMd: "展示一段含有 **加粗文字** 的正文。" },
-    { id: "emphasis", label: "斜体 (em)", selector: ".plain-slide em", defaultCss: "font-style: italic;\ncolor: #4b5563;", previewMd: "展示一段含有 *斜体文字* 的正文。" },
-    { id: "delete", label: "删除线 (del)", selector: ".plain-slide del", defaultCss: "text-decoration: line-through;\ncolor: #9ca3af;", previewMd: "展示一段含有 ~~删除线文字~~ 的正文。" },
-    { id: "link", label: "超链接 (a)", selector: ".plain-slide a", defaultCss: "color: #3b82f6;\ntext-decoration: none;\nborder-bottom: 1px solid transparent;\ntransition: all 0.2s;", previewMd: "这是一个 [超链接示例](https://geek-ppt.com)。" },
-    { id: "ul", label: "无序列表 (ul)", selector: ".plain-slide ul", defaultCss: "padding-left: 1.5em;\nmargin: 0.8em 0;\nlist-style-type: disc;", previewMd: "- 第一项\n- 第二项\n  - 子项目 A\n  - 子项目 B" },
-    { id: "ol", label: "有序列表 (ol)", selector: ".plain-slide ol", defaultCss: "padding-left: 1.5em;\nmargin: 0.8em 0;\nlist-style-type: decimal;", previewMd: "1. 步骤一\n2. 步骤二\n3. 步骤三" },
-    { id: "li", label: "列表项 (li)", selector: ".plain-slide li", defaultCss: "margin-bottom: 0.4em;\nline-height: 1.5;", previewMd: "- 重点关注列表中**每一行**的间距和样式。" },
-    { id: "blockquote", label: "引用块 (quote)", selector: ".plain-slide blockquote", defaultCss: "border-left: 5px solid #6366f1;\nbackground: #f8fafc;\nmargin: 1.5em 0;\npadding: 16px 24px;\ncolor: #475569;\nfont-style: italic;", previewMd: "> 书山有路勤为径，学海无涯苦作舟。\n> —— 这是一个引用块示例。" },
-    { id: "code", label: "行内代码 (code)", selector: ".plain-slide code:not(pre code)", defaultCss: "background: #f1f5f9;\ncolor: #ef4444;\npadding: 0.2em 0.4em;\nborder-radius: 4px;\nfont-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;\nfont-size: 0.9em;", previewMd: "这是一个 \`inline code\` 行内代码示例。" },
-    { id: "pre", label: "代码块 (pre)", selector: ".plain-slide pre.shiki", defaultCss: "background: #1e293b !important;\npadding: 1.2em;\nborder-radius: 8px;\nmargin: 1.2em 0;\nfont-size: 0.85em;\nline-height: 1.4;", previewMd: "\`\`\`javascript\nfunction hello() {\n  console.log(\"Hello Geek PPT!\");\n}\n\`\`\`" },
-    { id: "table", label: "表格 (table)", selector: ".plain-slide table", defaultCss: "width: 100%;\nborder-collapse: collapse;\nmargin: 1.2em 0;\nborder: 1px solid #e5e7eb;", previewMd: "| 属性 | 说明 |\n| :--- | :--- |\n| 样式 | 表格内容 |" },
-    { id: "th", label: "表格表头 (th)", selector: ".plain-slide th", defaultCss: "background: #f9fafb;\nborder: 1px solid #e5e7eb;\npadding: 10px 14px;\nfont-weight: 700;\ntext-align: left;", previewMd: "| 这里是表头示例 |\n| :--- |\n| 内容 |" },
-    { id: "td", label: "表格单元格 (td)", selector: ".plain-slide td", defaultCss: "border: 1px solid #e5e7eb;\npadding: 8px 14px;\ncolor: #4b5563;", previewMd: "| 标题 |\n| :--- |\n| 这里是单元格内容示例 |" },
+    { id: "container", label: "PPT 容器/整体背景", selector: ".plain-slide", defaultCss: "background: #ffffff;\ncolor: #1a1a2e;\npadding: 48px 64px;\nfont-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\nfont-size: 16px;\nline-height: 1.7;\nheight: 100%;\nbox-sizing: border-box;\noverflow-y: auto;", previewMd: "# 容器样式展示\n这是背景和基础文字样式的综合预览。" },
+    { id: "h1", label: "一级标题 (h1)", selector: ".plain-slide h1", defaultCss: "font-size: 2.5em;\nfont-weight: 700;\nmargin: 0 0 0.4em;\ncolor: #1a1a2e;\nborder-bottom: 2px solid #e0e0e0;\npadding-bottom: 0.2em;", previewMd: "# 这是一个非常长的一级标题示例查看换行表现" },
+    { id: "h2", label: "二级标题 (h2)", selector: ".plain-slide h2", defaultCss: "font-size: 2em;\nfont-weight: 700;\nmargin: 0.6em 0 0.3em;\ncolor: #1a1a2e;\nborder-bottom: 1px solid #eee;\npadding-bottom: 0.15em;", previewMd: "## 这是一个二级标题示例" },
+    { id: "h3", label: "三级标题 (h3)", selector: ".plain-slide h3", defaultCss: "font-size: 1.6em;\nfont-weight: 600;\nmargin: 0.5em 0 0.3em;\ncolor: #1a1a2e;", previewMd: "### 这是一个三级标题示例" },
+    { id: "h4", label: "四级标题 (h4)", selector: ".plain-slide h4", defaultCss: "font-size: 1.3em;\nfont-weight: 600;\nmargin: 0.4em 0 0.2em;\ncolor: #1a1a2e;", previewMd: "#### 这是一个四级标题示例" },
+    { id: "h5", label: "五级标题 (h5)", selector: ".plain-slide h5", defaultCss: "font-size: 1.1em;\nfont-weight: 600;\nmargin: 0.3em 0 0.2em;\ncolor: #1a1a2e;", previewMd: "##### 这是一个五级标题示例" },
+    { id: "h6", label: "六级标题 (h6)", selector: ".plain-slide h6", defaultCss: "font-size: 1em;\nfont-weight: 600;\nmargin: 0.3em 0 0.2em;\ncolor: #555;", previewMd: "###### 这是一个六级标题示例" },
+    { id: "hr", label: "分割线 (hr)", selector: ".plain-slide hr", defaultCss: "border: none;\nborder-top: 1px solid #d1d5db;\nmargin: 1.5em 0;\nwidth: 100%;", previewMd: "上面是文字\n\n---\n\n下面是文字" },
+    { id: "paragraph", label: "正文段落 (p)", selector: ".plain-slide p", defaultCss: "margin: 0.6em 0;\nfont-size: 1em;\ncolor: #1a1a2e;", previewMd: "这是一段普通的正文内容示例。用于预览段落及其行高、字间距等渲染效果。" },
+    { id: "strong", label: "加粗 (strong)", selector: ".plain-slide strong", defaultCss: "font-weight: 700;\ncolor: #1a1a2e;", previewMd: "展示一段含有 **加粗文字** 的正文。" },
+    { id: "emphasis", label: "斜体 (em)", selector: ".plain-slide em", defaultCss: "font-style: italic;\ncolor: #1a1a2e;", previewMd: "展示一段含有 *斜体文字* 的正文。" },
+    { id: "delete", label: "删除线 (del)", selector: ".plain-slide del", defaultCss: "text-decoration: line-through;\ncolor: #999;", previewMd: "展示一段含有 ~~删除线文字~~ 的正文。" },
+    { id: "link", label: "超链接 (a)", selector: ".plain-slide a", defaultCss: "color: #2563eb;\ntext-decoration: underline;", previewMd: "这是一个 [超链接示例](https://geek-ppt.com)。" },
+    { id: "ul", label: "无序列表 (ul)", selector: ".plain-slide ul", defaultCss: "padding-left: 1.5em;\nmargin: 0.5em 0;\nlist-style-type: disc;", previewMd: "- 第一项\n- 第二项\n  - 子项目 A\n  - 子项目 B" },
+    { id: "ol", label: "有序列表 (ol)", selector: ".plain-slide ol", defaultCss: "padding-left: 1.5em;\nmargin: 0.5em 0;\nlist-style-type: decimal;", previewMd: "1. 步骤一\n2. 步骤二\n3. 步骤三" },
+    { id: "li", label: "列表项 (li)", selector: ".plain-slide li", defaultCss: "margin: 0.25em 0;\nline-height: 1.7;", previewMd: "- 重点关注列表中**每一行**的间距和样式。" },
+    { id: "blockquote", label: "引用块 (quote)", selector: ".plain-slide blockquote", defaultCss: "border-left: 4px solid #d1d5db;\nbackground: #f9fafb;\nmargin: 1em 0;\npadding: 12px 20px;\ncolor: #4b5563;", previewMd: "> 书山有路勤为径，学海无涯苦作舟。\n> —— 这是一个引用块示例。" },
+    { id: "code", label: "行内代码 (code)", selector: ".plain-slide code:not(pre code)", defaultCss: "background: #f3f4f6;\ncolor: #1a1a2e;\npadding: 2px 6px;\nborder-radius: 4px;\nfont-family: 'JetBrains Mono', monospace;\nfont-size: 0.9em;", previewMd: "这是一个 \`inline code\` 行内代码示例。" },
+    { id: "pre", label: "代码块 (pre)", selector: ".plain-slide pre.shiki", defaultCss: "background-color: var(--shiki-light-bg, #f8f9fa) !important;\npadding: 16px;\nborder-radius: 8px;\nmargin: 1em 0;\nfont-size: 0.85em;\nline-height: 1.4;\nborder: 1px solid #e5e7eb;\noverflow-x: auto;", previewMd: "\`\`\`javascript\nfunction hello() {\n  console.log(\"Hello Geek PPT!\");\n}\n\`\`\`" },
+    { id: "table", label: "表格 (table)", selector: ".plain-slide table", defaultCss: "width: 100%;\nborder-collapse: collapse;\nmargin: 1em 0;", previewMd: "| 属性 | 说明 |\n| :--- | :--- |\n| 样式 | 表格内容 |" },
+    { id: "th", label: "表格表头 (th)", selector: ".plain-slide th", defaultCss: "background: #f3f4f6;\nborder: 1px solid #e5e7eb;\npadding: 8px 12px;\nfont-weight: 600;\ntext-align: left;", previewMd: "| 这里是表头示例 |\n| :--- |\n| 内容 |" },
+    { id: "td", label: "表格单元格 (td)", selector: ".plain-slide td", defaultCss: "border: 1px solid #e5e7eb;\npadding: 8px 12px;\ncolor: #1a1a2e;", previewMd: "| 标题 |\n| :--- |\n| 这里是单元格内容示例 |" },
 ];
 
 export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeModalProps) {
@@ -60,6 +60,42 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
     const [displayName, setDisplayName] = useState("");
     const [selectedElementId, setSelectedElementId] = useState(STYLE_ELEMENTS[0]!.id);
     const [cssMap, setCssMap] = useState<Record<string, string>>({});
+    const [baseTheme, setBaseTheme] = useState<string>("plain");
+
+    /**
+     * Parse full CSS string into:
+     * 1. baseTheme (from @theme-base comment)
+     * 2. cssMap (per element rules)
+     * 3. extraCss (anything else, like animations)
+     */
+    const parseThemeCss = useCallback((fullCss: string, overrideBase?: string) => {
+        // 1. Detect base theme
+        const baseMatch = fullCss.match(/\/\*\s*@theme-base:\s*(\w+)\s*\*\//);
+        const detectedBase = overrideBase || baseMatch?.[1] || "plain";
+
+        // 2. Identify selectors to look for
+        const wrapperClass = `.${detectedBase}-slide`;
+
+        // 3. Extract element rules
+        const newMap: Record<string, string> = {};
+        let processedCss = fullCss;
+
+        STYLE_ELEMENTS.forEach(el => {
+            // Map selector to current base (e.g. .plain-slide h1 -> .cool-slide h1)
+            const targetSelector = el.selector.replace(/^\.plain-slide/, wrapperClass);
+            const escaped = targetSelector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            const regex = new RegExp(escaped + "\\s*\\{([^}]*)\\}", "s");
+
+            const match = processedCss.match(regex);
+            if (match) {
+                newMap[el.id] = match[1].split("\n").map(l => l.trim()).filter(Boolean).join("\n");
+            } else {
+                newMap[el.id] = "";
+            }
+        });
+
+        return { detectedBase, newMap };
+    }, []);
 
 
 
@@ -76,29 +112,12 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
         if (open) {
             if (existingTheme) {
                 setDisplayName(existingTheme.displayName);
-
-                // Parse saved CSS back into per-element map
-                const savedCss = existingTheme.css || "";
-                const initialMap: Record<string, string> = {};
-                STYLE_ELEMENTS.forEach(el => {
-                    // Match the selector block: ".plain-slide h1 { ... }"
-                    const escaped = el.selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-                    const regex = new RegExp(escaped + "\\s*\\{([^}]*)\\}", "s");
-                    const match = savedCss.match(regex);
-                    if (match) {
-                        // Trim each line and remove empty lines
-                        initialMap[el.id] = match[1]
-                            .split("\n")
-                            .map(l => l.trim())
-                            .filter(Boolean)
-                            .join("\n");
-                    } else {
-                        initialMap[el.id] = el.defaultCss;
-                    }
-                });
-                setCssMap(initialMap);
+                const { detectedBase, newMap } = parseThemeCss(existingTheme.css || "");
+                setBaseTheme(detectedBase);
+                setCssMap(newMap);
             } else {
                 setDisplayName("新样式");
+                setBaseTheme("plain");
                 const initialMap: Record<string, string> = {};
                 STYLE_ELEMENTS.forEach(el => {
                     initialMap[el.id] = el.defaultCss;
@@ -106,7 +125,7 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
                 setCssMap(initialMap);
             }
         }
-    }, [open, existingTheme]);
+    }, [open, existingTheme, parseThemeCss]);
 
     // Current focused CSS editor content
     const currentCss = cssMap[selectedElementId] || "";
@@ -117,11 +136,24 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
 
     // Build full CSS for preview and saving
     const fullCss = useMemo(() => {
-        return STYLE_ELEMENTS.map(el => {
-            const content = cssMap[el.id] || el.defaultCss;
-            return `${el.selector} {\n${content}\n}`;
-        }).join("\n\n");
-    }, [cssMap]);
+        const wrapperClass = `.${baseTheme}-slide`;
+        const baseComment = baseTheme !== "plain" ? `/* @theme-base: ${baseTheme} */\n` : "";
+
+        const coreCss = STYLE_ELEMENTS
+            .filter(el => el.selector !== "")
+            .filter(el => {
+                // Skip empty per-element fields to avoid overriding base CSS in 'extra'
+                const content = cssMap[el.id];
+                return content !== undefined && content.trim() !== "";
+            })
+            .map(el => {
+                const content = cssMap[el.id]!;
+                const targetSelector = el.selector.replace(/^\.plain-slide/, wrapperClass);
+                return `${targetSelector} {\n${content}\n}`;
+            }).join("\n\n");
+
+        return [baseComment, coreCss].filter(Boolean).join("\n\n");
+    }, [cssMap, baseTheme]);
 
     // Update individual preview
     useEffect(() => {
@@ -187,24 +219,9 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
                 const imported: CustomTheme = JSON.parse(text);
                 if (imported.css && imported.displayName) {
                     setDisplayName(`${imported.displayName} (导入)`);
-                    // Parse imported CSS back into per-element map
-                    const savedCss = imported.css;
-                    const parsedMap: Record<string, string> = {};
-                    STYLE_ELEMENTS.forEach(el => {
-                        const escaped = el.selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-                        const regex = new RegExp(escaped + "\\s*\\{([^}]*)\\}", "s");
-                        const match = savedCss.match(regex);
-                        if (match) {
-                            parsedMap[el.id] = match[1]
-                                .split("\n")
-                                .map(l => l.trim())
-                                .filter(Boolean)
-                                .join("\n");
-                        } else {
-                            parsedMap[el.id] = el.defaultCss;
-                        }
-                    });
-                    setCssMap(parsedMap);
+                    const { detectedBase, newMap } = parseThemeCss(imported.css);
+                    setBaseTheme(detectedBase);
+                    setCssMap(newMap);
                 }
             } catch (err) {
                 console.error("[import-style] Failed:", err);
@@ -229,6 +246,28 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
                             placeholder="样式名称"
                             className="bg-zinc-950 border border-zinc-600 rounded px-2 py-1 text-sm text-zinc-200 focus:border-indigo-500 outline-none w-48"
                         />
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-zinc-500 uppercase font-bold">继承底座:</span>
+                            <select
+                                value={baseTheme}
+                                onChange={(e) => {
+                                    const newBase = e.target.value;
+                                    setBaseTheme(newBase);
+                                    // Parse base theme CSS and populate per-element fields
+                                    let baseCss = "";
+                                    if (newBase === "cool") baseCss = getCoolStyles();
+                                    else if (newBase === "torrent") baseCss = getTorrentStyles();
+                                    else baseCss = getPlainStyles();
+                                    const { newMap } = parseThemeCss(baseCss, newBase);
+                                    setCssMap(newMap);
+                                }}
+                                className="bg-zinc-950 border border-zinc-600 rounded px-1 py-1 text-xs text-zinc-300 outline-none focus:border-indigo-500"
+                            >
+                                <option value="plain">朴素 (Plain)</option>
+                                <option value="cool">酷炫 (Cool)</option>
+                                <option value="torrent">激流 (Torrent)</option>
+                            </select>
+                        </div>
                     </div>
                     <div className="flex items-center gap-2">
                         {editingThemeId && (
@@ -274,7 +313,7 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
                                 <div className="flex items-center gap-2">
                                     <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">CSS 编辑</span>
                                     <code className="text-[10px] text-indigo-400 font-mono bg-indigo-500/10 px-1.5 py-0.5 rounded">
-                                        {selectedElement.selector}
+                                        {selectedElement.selector ? selectedElement.selector.replace(/^\.plain-slide/, `.${baseTheme}-slide`) : "Extra Global CSS"}
                                     </code>
                                 </div>
                                 <span className="text-[10px] text-zinc-600 italic">自动保存片段</span>
@@ -295,7 +334,7 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
                             </div>
                             <div className="flex-1 flex items-center justify-center p-10 overflow-hidden">
                                 <div
-                                    className="bg-white shadow-2xl rounded-sm overflow-hidden max-w-full relative"
+                                    className="shadow-2xl rounded-sm overflow-hidden max-w-full relative bg-zinc-800"
                                     style={{
                                         aspectRatio: `${slideSize.width}/${slideSize.height}`,
                                         height: "320px",
