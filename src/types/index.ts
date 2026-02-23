@@ -4,6 +4,7 @@ export type {
   SlideSize,
   PluginConfig,
   Asset,
+  CustomTheme,
 } from "./project";
 
 export type {

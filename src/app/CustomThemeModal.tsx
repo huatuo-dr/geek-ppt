@@ -87,7 +87,7 @@ export function CustomThemeModal({ open, onClose, editingThemeId }: CustomThemeM
             const regex = new RegExp(escaped + "\\s*\\{([^}]*)\\}", "s");
 
             const match = processedCss.match(regex);
-            if (match) {
+            if (match && match[1]) {
                 newMap[el.id] = match[1].split("\n").map(l => l.trim()).filter(Boolean).join("\n");
             } else {
                 newMap[el.id] = "";
