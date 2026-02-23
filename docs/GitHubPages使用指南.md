@@ -8,7 +8,7 @@
 
 确保你的代码库中已包含以下文件：
 - `.github/workflows/deploy.yml`: 自动化部署脚本。
-- `vite.config.ts`: 其中 `base: "/geek-ppt/"` 配置已正确设置。
+- `vite.config.ts`: 其中 `base: "./"` 配置已正确设置（使用相对路径以兼容所有域名环境）。
 
 ---
 
@@ -38,7 +38,7 @@ git push origin master
 ## 3. 访问站点
 
 当部署任务完成后，访问地址格式通常为：
-`https://<你的GitHub用户名>.github.io/geek-ppt/`
+`https://huatuo-dr.github.io/geek-ppt/`
 
 > [!TIP]
 > 如果访问出现 404，请检查 `vite.config.ts` 中的 `base` 配置是否与你的仓库名称一致。
@@ -48,8 +48,7 @@ git push origin master
 ## 4. 常见问题
 
 ### 1. 页面样式错乱或图片加载失败
-- 如果你使用的是默认域名（`<user>.github.io/repo/`），请检查 `vite.config.ts` 中的 `base` 是否为 `"/geek-ppt/"`。
-- **如果你使用的是自定义域名（如 `ppt.huatuo.cloud`），请务必将 `vite.config.ts` 中的 `base` 修改为 `"/"`。**
+- 请检查 `vite.config.ts` 中的 `base` 是否为 `"./"`。**相对路径是最通用的方案**，无论你是用 GitHub 默认域名还是自定义域名。
 
 ---
 
@@ -67,8 +66,8 @@ git push origin master
    - 进入 **Settings** > **Pages** > **Custom domain**。
    - 输入 `ppt.huatuo.cloud` 并保存。
    - 勾选 **Enforce HTTPS**。
-3. **重要：调整代码配置**：
-   - 修改 `vite.config.ts`：将 `base: "/geek-ppt/"` 改为 `base: "/"`。
+3. **优势**：
+   - 此时 `vite.config.ts` 保持 `base: "./"` 即可，无需任何修改。
 
 ### 方案 B：腾讯云 CDN / EdgeOne 代理加速 (国内极速)
 如果你希望在国内获得极速体验，可以利用腾讯云 CDN：
@@ -76,5 +75,14 @@ git push origin master
 2. **配置源站**：
    - 源站类型：域名。
    - 源站地址：`huatuo-dr.github.io`。
-   - **回源 HOST**：`huatuo-dr.github.io`（非常重要，不填会无法访问）。
+   - **回源 HOST**：`huatuo-dr.github.io`（核心步骤）。
 3. **设置 HTTPS**：在腾讯云 CDN 部署 `huatuo.cloud` 的 SSL 证书。
+
+---
+
+## 6. 配置总结：一套配置走天下
+
+| 配置项 | 推荐值 | 说明 |
+| :--- | :--- | :--- |
+| **Vite Base** | `"./"` | **万能方案**：同时兼容默认二级目录和自定义域名根目录 |
+| **GitHub Pages Source** | `GitHub Actions` | 自动化构建与部署的最佳实践 |
