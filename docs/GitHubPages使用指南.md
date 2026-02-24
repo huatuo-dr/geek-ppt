@@ -69,6 +69,10 @@ git push origin master
 3. **优势**：
    - 此时 `vite.config.ts` 保持 `base: "./"` 即可，无需任何修改。
 
+> [!IMPORTANT]
+> **关于 HTTPS 证书 (TLS Certificate)**：
+> 绑定域名后，GitHub 需要时间申请 SSL 证书。如果看到 `Unavailable for your site` 报错，属于正常现象。通常需要 **15-60 分钟** 证书才会生效。在此之前，你只能通过 `http://` 访问。
+
 ### 方案 B：腾讯云 CDN / EdgeOne 代理加速 (国内极速)
 如果你希望在国内获得极速体验，可以利用腾讯云 CDN：
 1. **添加加速域名**：在腾讯云 CDN 控制台添加 `ppt.huatuo.cloud`。
