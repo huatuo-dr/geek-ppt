@@ -6,7 +6,7 @@ import { SLIDE_SIZE_PRESETS } from "@/lib/defaults";
 import { usePresentationStore } from "@/modules/presentationStore";
 import { saveProject, importProject, clearFileHandle } from "@/services/projectIO";
 import { exportPresentation } from "@/services/exportService";
-import { createTemplateSlides } from "@/lib/templateSlides";
+import { createHelpSlides } from "@/lib/helpSlides";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { CustomThemeModal } from "./CustomThemeModal";
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -15,7 +15,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 // Pending action — what to do after the user confirms discard / save
 // ---------------------------------------------------------------------------
 const EMPTY_ARRAY: any[] = [];
-type PendingAction = "new" | "import" | "template" | null;
+type PendingAction = "new" | "import" | "help" | null;
 
 export function Toolbar() {
   const projectName = useProjectStore((s) => s.project.name);
@@ -66,14 +66,13 @@ export function Toolbar() {
     }
   }, [loadProject, setCurrentSlideIndex]);
 
-  const executeTemplate = useCallback(() => {
-    const slides = createTemplateSlides();
+  const executeHelp = useCallback(() => {
+    const slides = createHelpSlides();
     const now = new Date().toISOString();
-    // Preserve existing custom themes when loading template
     const existingThemes = useProjectStore.getState().project.customThemes || [];
     loadProject({
-      projectId: "template",
-      name: "语法模板预览",
+      projectId: "help",
+      name: "使用指南",
       createdAt: now,
       updatedAt: now,
       slides,
@@ -91,14 +90,14 @@ export function Toolbar() {
     setPendingAction(null);
     if (action === "new") executeNew();
     else if (action === "import") void executeImport();
-    else if (action === "template") executeTemplate();
-  }, [pendingAction, executeNew, executeImport, executeTemplate]);
+    else if (action === "help") executeHelp();
+  }, [pendingAction, executeNew, executeImport, executeHelp]);
 
   // --- Button handlers ---
 
   const handleNew = useCallback(() => guardedAction("new", executeNew), [guardedAction, executeNew]);
   const handleImport = useCallback(() => guardedAction("import", () => void executeImport()), [guardedAction, executeImport]);
-  const handleTemplate = useCallback(() => guardedAction("template", executeTemplate), [guardedAction, executeTemplate]);
+  const handleHelp = useCallback(() => guardedAction("help", executeHelp), [guardedAction, executeHelp]);
 
   const handleSave = useCallback(async () => {
     try {
@@ -183,7 +182,7 @@ export function Toolbar() {
   const dialogMessages: Record<string, { title: string; message: string }> = {
     new: { title: "新建项目", message: "当前项目有未保存的修改，新建将丢失这些内容。确定要继续吗？" },
     import: { title: "导入项目", message: "当前项目有未保存的修改，导入将丢失这些内容。确定要继续吗？" },
-    template: { title: "加载模板", message: "模板将覆盖当前项目内容，未保存的修改会丢失。确定要继续吗？" },
+    help: { title: "使用指南", message: "打开帮助指南将覆盖当前项目内容，未保存的修改会丢失。确定要继续吗？" },
   };
   const dialogInfo = pendingAction ? dialogMessages[pendingAction] : null;
 
@@ -295,8 +294,8 @@ export function Toolbar() {
           )}
         </div>
 
-        {/* Template button */}
-        <ToolbarButton label="模板" onClick={handleTemplate} />
+        {/* Help button */}
+        <ToolbarButton label="帮助" onClick={handleHelp} />
 
         {/* Slide size dropdown */}
         <div className="relative" ref={sizeMenuRef}>

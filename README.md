@@ -13,7 +13,7 @@
 - **自定义渲染系统** — 提供可视化编辑器，支持在现有底座基础上逐项修改 CSS，支持主题导入/导出
 - **代码高亮** — 基于 Shiki，提供 VSCode 级别的语法着色
 - **演示模式** — 按 `F5` 进入全屏演示，支持键盘翻页和缩略图导航
-- **项目文件** — 保存为 `.geek-ppt` 单文件（ZIP 容器），方便分享和备份
+- **项目文件** — 保存为 `.geekppt` 单文件（ZIP 容器），方便分享和备份
 - **HTML 导出** — 导出为独立 HTML 文件，无需安装任何软件即可播放
 - **多种尺寸** — 支持 16:9、4:3、21:9、9:16、A4 等画布比例
 - **面板可调** — 三栏布局支持拖拽边缘调整宽度
@@ -41,7 +41,7 @@
 | 代码高亮 | Shiki |
 | 样式 | Tailwind CSS |
 | 样式隔离 | Shadow DOM |
-| 文件格式 | JSZip（.geek-ppt） |
+| 文件格式 | JSZip（.geekppt） |
 | 测试 | Vitest |
 
 ---
@@ -107,7 +107,7 @@ src/
 ├── services/         # 核心服务
 │   ├── renderService   # Markdown → HTML 渲染管线
 │   ├── pluginRegistry  # 插件注册表
-│   ├── projectIO       # 项目文件读写（.geek-ppt）
+│   ├── projectIO       # 项目文件读写（.geekppt）
 │   ├── exportService   # HTML 演示导出
 │   └── performanceDetector # 设备性能检测与降级
 ├── types/            # TypeScript 类型定义
@@ -136,7 +136,7 @@ Geek PPT 的渲染是插件化的。每个插件提供一套 CSS 样式，控制
 
 ## 项目文件格式
 
-`.geek-ppt` 文件是一个 ZIP 容器，内部结构：
+`.geekppt` 文件是一个 ZIP 容器，内部结构：
 
 ```
 project.json          # 项目元数据（名称、尺寸、页面顺序）
