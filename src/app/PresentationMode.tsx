@@ -21,12 +21,14 @@ export function PresentationMode() {
 
   // Rendered cache
   const [renderedSlides, setRenderedSlides] = useState<Map<number, { html: string; css: string }>>(new Map());
+  const renderedSlidesRef = useRef(renderedSlides);
+  renderedSlidesRef.current = renderedSlides;
   const shadowHostRef = useRef<HTMLDivElement>(null);
   const shadowRootRef = useRef<ShadowRoot | null>(null);
 
-  // Init Shadow DOM
+  // Init Shadow DOM when becoming active
   useEffect(() => {
-    if (shadowHostRef.current && !shadowRootRef.current) {
+    if (active && shadowHostRef.current && !shadowRootRef.current) {
       shadowRootRef.current = shadowHostRef.current.attachShadow({ mode: "open" });
     }
   }, [active]);
@@ -35,13 +37,13 @@ export function PresentationMode() {
   const renderSlide = useCallback(async (idx: number) => {
     const slide = slides[idx];
     if (!slide) return;
-    if (renderedSlides.has(idx)) return;
+    if (renderedSlidesRef.current.has(idx)) return;
 
     const resp = await requestRender(slide.markdownContent, pluginId, slideSize, idx);
     if (!resp.error) {
       setRenderedSlides((prev) => new Map(prev).set(idx, { html: resp.html, css: resp.css }));
     }
-  }, [slides, pluginId, slideSize, renderedSlides]);
+  }, [slides, pluginId, slideSize]);
 
   // Pre-render current and adjacent slides
   useEffect(() => {
@@ -54,12 +56,26 @@ export function PresentationMode() {
   // Display current slide in Shadow DOM
   useEffect(() => {
     const shadowRoot = shadowRootRef.current;
-    if (!shadowRoot || !active) return;
     const cached = renderedSlides.get(currentSlide);
+    if (!shadowRoot || !active) return;
     if (cached) {
       shadowRoot.innerHTML = `<style>${cached.css}</style>${cached.html}`;
+
+      // Check for scrolling and add class for ink/vintage themes
+      if (pluginId === "ink-renderer" || pluginId === "vintage-renderer") {
+        const slideEl = shadowRoot.querySelector('.ink-slide, .vintage-slide') as HTMLElement;
+        if (slideEl) {
+          const checkScroll = () => {
+            const hasScroll = slideEl.scrollHeight > slideEl.clientHeight;
+            slideEl.classList.toggle('scrolling', hasScroll);
+          };
+          checkScroll();
+          const observer = new MutationObserver(checkScroll);
+          observer.observe(slideEl, { childList: true, subtree: true });
+        }
+      }
     }
-  }, [active, currentSlide, renderedSlides]);
+  }, [active, currentSlide, renderedSlides, pluginId]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -86,8 +102,15 @@ export function PresentationMode() {
 
   // Clear cache when leaving
   useEffect(() => {
-    if (!active) setRenderedSlides(new Map());
+    if (!active) {
+      setRenderedSlides(new Map());
+    }
   }, [active]);
+
+  // Clear cache when plugin changes
+  useEffect(() => {
+    setRenderedSlides(new Map());
+  }, [pluginId]);
 
   if (!active) return null;
 

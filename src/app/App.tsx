@@ -7,6 +7,7 @@ import { PresentationMode } from "./PresentationMode";
 import { ResizeHandle } from "@/components/ResizeHandle";
 import { initPlugins } from "@/plugins";
 import { useGlobalShortcuts } from "./useGlobalShortcuts";
+import { usePresentationStore } from "@/modules/presentationStore";
 
 // Register plugins synchronously at module load, before any render
 initPlugins();
@@ -20,6 +21,7 @@ const MIN_EDITOR_W = 240;
 const MIN_PREVIEW_W = 300;
 
 export function App() {
+  const active = usePresentationStore((s) => s.active);
 
   useGlobalShortcuts();
 
@@ -75,7 +77,7 @@ export function App() {
           <PreviewPanel />
         </div>
       </main>
-      <PresentationMode />
+      <PresentationMode key={active ? "active" : "inactive"} />
     </div>
   );
 }
