@@ -19,8 +19,13 @@ import { uid } from "@/lib/id";
 import { getPlainStyles, getPlainWrapperClass } from "@/plugins/plain/plainStyles";
 import { getCoolStyles, getCoolWrapperClass } from "@/plugins/cool/coolStyles";
 import { getTorrentStyles, getTorrentWrapperClass, getTorrentInnerHtml, torrentPreprocess } from "@/plugins/torrent/torrentStyles";
+import { getAcademicStyles } from "@/plugins/academic/academicStyles";
+import { getInkStyles } from "@/plugins/ink/inkStyles";
+import { getCyberpunkStyles } from "@/plugins/cyberpunk/cyberpunkStyles";
+import { getVintageStyles } from "@/plugins/vintage/vintageStyles";
+import { getMinimalStyles } from "@/plugins/minimal/minimalStyles";
 
-export { getPlainStyles, getPlainWrapperClass, getCoolStyles, getCoolWrapperClass, getTorrentStyles, getTorrentWrapperClass, getTorrentInnerHtml, torrentPreprocess };
+export { getPlainStyles, getPlainWrapperClass, getCoolStyles, getCoolWrapperClass, getTorrentStyles, getTorrentWrapperClass, getTorrentInnerHtml, torrentPreprocess, getAcademicStyles, getInkStyles, getCyberpunkStyles, getVintageStyles, getMinimalStyles };
 
 // ---------------------------------------------------------------------------
 // Mermaid helpers
@@ -39,16 +44,13 @@ function getMermaidConfig(pluginId: string): Parameters<typeof mermaid.initializ
   }
 
   if (pluginId === "torrent-renderer") {
-    // Neon aesthetic matching torrent's yellow-red / blue-purple palette
     return {
       ...base,
       theme: "base" as const,
       themeVariables: {
-        // General
         background: "transparent",
         fontFamily: MERMAID_FONT,
         fontSize: "14px",
-        // Node colors
         primaryColor: "rgba(251,191,36,0.18)",
         primaryTextColor: "#ffffff",
         primaryBorderColor: "#fbbf24",
@@ -58,17 +60,14 @@ function getMermaidConfig(pluginId: string): Parameters<typeof mermaid.initializ
         tertiaryColor: "rgba(236,72,153,0.14)",
         tertiaryTextColor: "#e2e8f0",
         tertiaryBorderColor: "#ec4899",
-        // Lines & edges
         lineColor: "#a78bfa",
         textColor: "#e2e8f0",
-        // Flowchart
         nodeBorder: "#fbbf24",
         mainBkg: "rgba(251,191,36,0.15)",
         clusterBkg: "rgba(139,92,246,0.08)",
         clusterBorder: "#8b5cf6",
         titleColor: "#fbbf24",
         edgeLabelBackground: "rgba(7,6,13,0.7)",
-        // Sequence diagram
         actorBkg: "rgba(251,191,36,0.15)",
         actorBorder: "#fbbf24",
         actorTextColor: "#ffffff",
@@ -81,7 +80,6 @@ function getMermaidConfig(pluginId: string): Parameters<typeof mermaid.initializ
         noteBkgColor: "rgba(251,191,36,0.12)",
         noteBorderColor: "#fbbf24",
         noteTextColor: "#ffffff",
-        // Pie chart
         pie1: "#fbbf24",
         pie2: "#8b5cf6",
         pie3: "#ec4899",
@@ -94,7 +92,6 @@ function getMermaidConfig(pluginId: string): Parameters<typeof mermaid.initializ
         pieSectionTextColor: "#ffffff",
         pieTitleTextColor: "#fbbf24",
         pieLegendTextColor: "#e2e8f0",
-        // XY chart
         xyChart: {
           backgroundColor: "transparent",
           titleColor: "#fbbf24",
@@ -110,62 +107,221 @@ function getMermaidConfig(pluginId: string): Parameters<typeof mermaid.initializ
     };
   }
 
-  // Cool renderer — enhanced dark theme
-  return {
-    ...base,
-    theme: "base" as const,
-    themeVariables: {
-      background: "transparent",
-      fontFamily: MERMAID_FONT,
-      fontSize: "14px",
-      primaryColor: "rgba(99,102,241,0.22)",
-      primaryTextColor: "#e2e8f0",
-      primaryBorderColor: "#6366f1",
-      secondaryColor: "rgba(236,72,153,0.18)",
-      secondaryTextColor: "#e2e8f0",
-      secondaryBorderColor: "#ec4899",
-      tertiaryColor: "rgba(6,182,212,0.15)",
-      tertiaryTextColor: "#e2e8f0",
-      tertiaryBorderColor: "#06b6d4",
-      lineColor: "#8b5cf6",
-      textColor: "#e2e8f0",
-      nodeBorder: "#6366f1",
-      mainBkg: "rgba(99,102,241,0.18)",
-      clusterBkg: "rgba(99,102,241,0.08)",
-      clusterBorder: "#6366f1",
-      titleColor: "#c4b5fd",
-      edgeLabelBackground: "rgba(15,12,41,0.7)",
-      actorBkg: "rgba(99,102,241,0.18)",
-      actorBorder: "#6366f1",
-      actorTextColor: "#e2e8f0",
-      signalColor: "#8b5cf6",
-      signalTextColor: "#e2e8f0",
-      noteBkgColor: "rgba(99,102,241,0.12)",
-      noteBorderColor: "#6366f1",
-      noteTextColor: "#e2e8f0",
-      pie1: "#6366f1",
-      pie2: "#ec4899",
-      pie3: "#06b6d4",
-      pie4: "#a78bfa",
-      pie5: "#f472b6",
-      pie6: "#22d3ee",
-      pieStrokeColor: "rgba(255,255,255,0.1)",
-      pieSectionTextColor: "#ffffff",
-      pieTitleTextColor: "#c4b5fd",
-      pieLegendTextColor: "#e2e8f0",
-      xyChart: {
-        backgroundColor: "transparent",
+  if (pluginId === "cool-renderer") {
+    return {
+      ...base,
+      theme: "base" as const,
+      themeVariables: {
+        background: "transparent",
+        fontFamily: MERMAID_FONT,
+        fontSize: "14px",
+        primaryColor: "rgba(99,102,241,0.22)",
+        primaryTextColor: "#e2e8f0",
+        primaryBorderColor: "#6366f1",
+        secondaryColor: "rgba(236,72,153,0.18)",
+        secondaryTextColor: "#e2e8f0",
+        secondaryBorderColor: "#ec4899",
+        tertiaryColor: "rgba(6,182,212,0.15)",
+        tertiaryTextColor: "#e2e8f0",
+        tertiaryBorderColor: "#06b6d4",
+        lineColor: "#8b5cf6",
+        textColor: "#e2e8f0",
+        nodeBorder: "#6366f1",
+        mainBkg: "rgba(99,102,241,0.18)",
+        clusterBkg: "rgba(99,102,241,0.08)",
+        clusterBorder: "#6366f1",
         titleColor: "#c4b5fd",
-        xAxisTitleColor: "#e2e8f0",
-        yAxisTitleColor: "#e2e8f0",
-        xAxisLabelColor: "#a1a1aa",
-        yAxisLabelColor: "#a1a1aa",
-        xAxisLineColor: "rgba(255,255,255,0.1)",
-        yAxisLineColor: "rgba(255,255,255,0.1)",
-        plotColorPalette: "#6366f1,#ec4899,#06b6d4,#a78bfa,#f472b6,#22d3ee",
+        edgeLabelBackground: "rgba(15,12,41,0.7)",
+        actorBkg: "rgba(99,102,241,0.18)",
+        actorBorder: "#6366f1",
+        actorTextColor: "#e2e8f0",
+        signalColor: "#8b5cf6",
+        signalTextColor: "#e2e8f0",
+        noteBkgColor: "rgba(99,102,241,0.12)",
+        noteBorderColor: "#6366f1",
+        noteTextColor: "#e2e8f0",
+        pie1: "#6366f1",
+        pie2: "#ec4899",
+        pie3: "#06b6d4",
+        pie4: "#a78bfa",
+        pie5: "#f472b6",
+        pie6: "#22d3ee",
+        pieStrokeColor: "rgba(255,255,255,0.1)",
+        pieSectionTextColor: "#ffffff",
+        pieTitleTextColor: "#c4b5fd",
+        pieLegendTextColor: "#e2e8f0",
+        xyChart: {
+          backgroundColor: "transparent",
+          titleColor: "#c4b5fd",
+          xAxisTitleColor: "#e2e8f0",
+          yAxisTitleColor: "#e2e8f0",
+          xAxisLabelColor: "#a1a1aa",
+          yAxisLabelColor: "#a1a1aa",
+          xAxisLineColor: "rgba(255,255,255,0.1)",
+          yAxisLineColor: "rgba(255,255,255,0.1)",
+          plotColorPalette: "#6366f1,#ec4899,#06b6d4,#a78bfa,#f472b6,#22d3ee",
+        },
       },
-    },
-  };
+    };
+  }
+
+  if (pluginId === "academic-renderer") {
+    return { ...base, theme: "default" as const };
+  }
+
+  if (pluginId === "ink-renderer") {
+    return {
+      ...base,
+      theme: "base" as const,
+      themeVariables: {
+        background: "transparent",
+        fontFamily: "'Noto Serif SC', serif",
+        fontSize: "14px",
+        primaryColor: "rgba(139, 90, 43, 0.2)",
+        primaryTextColor: "#3a3a3a",
+        primaryBorderColor: "#8b5a2b",
+        secondaryColor: "rgba(139, 90, 43, 0.15)",
+        secondaryTextColor: "#555",
+        secondaryBorderColor: "#a08060",
+        tertiaryColor: "rgba(139, 90, 43, 0.1)",
+        tertiaryTextColor: "#666",
+        tertiaryBorderColor: "#b09070",
+        lineColor: "#8b5a2b",
+        textColor: "#3a3a3a",
+        nodeBorder: "#8b5a2b",
+        mainBkg: "rgba(139, 90, 43, 0.1)",
+        clusterBkg: "rgba(139, 90, 43, 0.05)",
+        clusterBorder: "#a08060",
+        titleColor: "#5a3a1b",
+        actorBkg: "rgba(139, 90, 43, 0.15)",
+        actorBorder: "#8b5a2b",
+        actorTextColor: "#3a3a3a",
+        noteBkgColor: "rgba(139, 90, 43, 0.1)",
+        noteBorderColor: "#8b5a2b",
+        noteTextColor: "#3a3a3a",
+        pie1: "#8b5a2b",
+        pie2: "#a08060",
+        pie3: "#c0a080",
+        pie4: "#6b4a1b",
+      },
+    };
+  }
+
+  if (pluginId === "cyberpunk-renderer") {
+    return {
+      ...base,
+      theme: "base" as const,
+      themeVariables: {
+        background: "transparent",
+        fontFamily: "'JetBrains Mono', monospace",
+        fontSize: "14px",
+        primaryColor: "rgba(0, 255, 255, 0.2)",
+        primaryTextColor: "#00ffff",
+        primaryBorderColor: "#00ffff",
+        secondaryColor: "rgba(255, 0, 255, 0.2)",
+        secondaryTextColor: "#ff00ff",
+        secondaryBorderColor: "#ff00ff",
+        tertiaryColor: "rgba(255, 170, 0, 0.2)",
+        tertiaryTextColor: "#ffaa00",
+        tertiaryBorderColor: "#ffaa00",
+        lineColor: "#00ffff",
+        textColor: "#e0e0e0",
+        nodeBorder: "#00ffff",
+        mainBkg: "rgba(0, 255, 255, 0.1)",
+        clusterBkg: "rgba(255, 0, 255, 0.05)",
+        clusterBorder: "#ff00ff",
+        titleColor: "#ff00ff",
+        actorBkg: "rgba(0, 255, 255, 0.15)",
+        actorBorder: "#00ffff",
+        actorTextColor: "#00ffff",
+        noteBkgColor: "rgba(255, 0, 255, 0.1)",
+        noteBorderColor: "#ff00ff",
+        noteTextColor: "#ff00ff",
+        pie1: "#00ffff",
+        pie2: "#ff00ff",
+        pie3: "#ffaa00",
+        pie4: "#00ff88",
+      },
+    };
+  }
+
+  if (pluginId === "vintage-renderer") {
+    return {
+      ...base,
+      theme: "base" as const,
+      themeVariables: {
+        background: "transparent",
+        fontFamily: "'Courier New', serif",
+        fontSize: "14px",
+        primaryColor: "rgba(139, 115, 85, 0.2)",
+        primaryTextColor: "#3d3322",
+        primaryBorderColor: "#8b7355",
+        secondaryColor: "rgba(139, 115, 85, 0.15)",
+        secondaryTextColor: "#554433",
+        secondaryBorderColor: "#a08060",
+        tertiaryColor: "rgba(139, 115, 85, 0.1)",
+        tertiaryTextColor: "#665544",
+        tertiaryBorderColor: "#b09070",
+        lineColor: "#8b7355",
+        textColor: "#3d3322",
+        nodeBorder: "#8b7355",
+        mainBkg: "rgba(139, 115, 85, 0.1)",
+        clusterBkg: "rgba(139, 115, 85, 0.05)",
+        clusterBorder: "#a08060",
+        titleColor: "#5a4030",
+        actorBkg: "rgba(139, 115, 85, 0.15)",
+        actorBorder: "#8b7355",
+        actorTextColor: "#3d3322",
+        noteBkgColor: "rgba(139, 115, 85, 0.1)",
+        noteBorderColor: "#8b7355",
+        noteTextColor: "#3d3322",
+        pie1: "#8b7355",
+        pie2: "#a08060",
+        pie3: "#c0a080",
+        pie4: "#6b5344",
+      },
+    };
+  }
+
+  if (pluginId === "minimal-renderer") {
+    return {
+      ...base,
+      theme: "base" as const,
+      themeVariables: {
+        background: "transparent",
+        fontFamily: "'Helvetica Neue', sans-serif",
+        fontSize: "14px",
+        primaryColor: "#000000",
+        primaryTextColor: "#000000",
+        primaryBorderColor: "#000000",
+        secondaryColor: "#333333",
+        secondaryTextColor: "#333333",
+        secondaryBorderColor: "#333333",
+        tertiaryColor: "#666666",
+        tertiaryTextColor: "#666666",
+        tertiaryBorderColor: "#666666",
+        lineColor: "#000000",
+        textColor: "#000000",
+        nodeBorder: "#000000",
+        mainBkg: "#ffffff",
+        clusterBkg: "#f5f5f5",
+        clusterBorder: "#000000",
+        titleColor: "#000000",
+        actorBkg: "#ffffff",
+        actorBorder: "#000000",
+        actorTextColor: "#000000",
+        noteBkgColor: "#f5f5f5",
+        noteBorderColor: "#000000",
+        noteTextColor: "#000000",
+        pie1: "#000000",
+        pie2: "#333333",
+        pie3: "#666666",
+        pie4: "#999999",
+      },
+    };
+  }
+
+  return { ...base, theme: "default" as const };
 }
 
 /** (Re-)initialize mermaid when renderer changes */
@@ -292,7 +448,6 @@ async function render(req: RenderRequest): Promise<RenderResponse> {
     let inner: string;
 
     if (effectiveBase === "torrent-renderer") {
-      // Always inject base + user overrides via cascade
       css = req.customCss ? getTorrentStyles() + "\n" + css : getTorrentStyles();
       wrapperClass = getTorrentWrapperClass();
       inner = getTorrentInnerHtml(rawHtml);
@@ -304,13 +459,31 @@ async function render(req: RenderRequest): Promise<RenderResponse> {
       css = req.customCss ? getPlainStyles() + "\n" + css : getPlainStyles();
       wrapperClass = getPlainWrapperClass();
       inner = rawHtml;
+    } else if (effectiveBase === "academic-renderer") {
+      css = req.customCss ? getAcademicStyles() + "\n" + css : getAcademicStyles();
+      wrapperClass = "academic-slide";
+      inner = rawHtml;
+    } else if (effectiveBase === "ink-renderer") {
+      css = req.customCss ? getInkStyles() + "\n" + css : getInkStyles();
+      wrapperClass = "ink-slide";
+      inner = rawHtml;
+    } else if (effectiveBase === "cyberpunk-renderer") {
+      css = req.customCss ? getCyberpunkStyles() + "\n" + css : getCyberpunkStyles();
+      wrapperClass = "cyberpunk-slide";
+      inner = rawHtml;
+    } else if (effectiveBase === "vintage-renderer") {
+      css = req.customCss ? getVintageStyles() + "\n" + css : getVintageStyles();
+      wrapperClass = "vintage-slide";
+      inner = rawHtml;
+    } else if (effectiveBase === "minimal-renderer") {
+      css = req.customCss ? getMinimalStyles() + "\n" + css : getMinimalStyles();
+      wrapperClass = "minimal-slide";
+      inner = rawHtml;
     } else if (req.customCss) {
-      // Custom theme without explicit @theme-base tag -> default to plain layout
       css = getPlainStyles() + "\n" + css;
       wrapperClass = getPlainWrapperClass();
       inner = rawHtml;
     } else {
-      // Built-in plugin but ID not recognized or default fallback (Cool)
       css = getCoolStyles();
       wrapperClass = getCoolWrapperClass();
       inner = `<div class="cool-scroll"><div class="cool-content">${rawHtml}</div></div>`;
