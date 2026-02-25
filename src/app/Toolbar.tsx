@@ -324,6 +324,19 @@ export function Toolbar() {
           )}
         </div>
 
+        <Sep />
+
+        {/* GitHub button */}
+        <a
+          href="https://github.com/huatuo-dr/geek-ppt"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-2.5 py-1 text-xs text-zinc-300 hover:text-zinc-100 hover:bg-zinc-700 rounded transition-colors flex items-center gap-1"
+          title="查看 GitHub 项目"
+        >
+          GitHub
+        </a>
+
         {/* Spacer */}
         <div className="flex-1" />
 
