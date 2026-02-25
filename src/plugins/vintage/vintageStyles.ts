@@ -33,6 +33,10 @@ export function getVintageStyles(): string {
   border: 1px solid rgba(139, 115, 85, 0.3);
   pointer-events: none;
 }
+.vintage-slide.scrolling::before,
+.vintage-slide.scrolling::after {
+  border-bottom: none;
+}
 .vintage-slide h1 { 
   font-size: 2.2em; 
   font-weight: 700; 

@@ -21,6 +21,9 @@ export function getInkStyles(): string {
   border: 2px solid rgba(139, 90, 43, 0.3);
   pointer-events: none;
 }
+.ink-slide.scrolling::before {
+  border-bottom: none;
+}
 .ink-slide h1 { 
   font-size: 2.4em; 
   font-weight: 700; 

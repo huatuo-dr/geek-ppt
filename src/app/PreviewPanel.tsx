@@ -35,7 +35,22 @@ export function PreviewPanel() {
     const shadowRoot = shadowRootRef.current;
     if (!shadowRoot) return;
     shadowRoot.innerHTML = `<style>${renderedCss}</style>${renderedHtml}`;
-  }, [renderedHtml, renderedCss]);
+
+    // Check for scrolling and add class for ink/vintage themes
+    if (pluginId === "ink-renderer" || pluginId === "vintage-renderer") {
+      const slideEl = shadowRoot.querySelector('.ink-slide, .vintage-slide') as HTMLElement;
+      if (slideEl) {
+        const checkScroll = () => {
+          const hasScroll = slideEl.scrollHeight > slideEl.clientHeight;
+          slideEl.classList.toggle('scrolling', hasScroll);
+        };
+        checkScroll();
+        const observer = new MutationObserver(checkScroll);
+        observer.observe(slideEl, { childList: true, subtree: true });
+        return () => observer.disconnect();
+      }
+    }
+  }, [renderedHtml, renderedCss, pluginId]);
 
   // Debounced render trigger
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
