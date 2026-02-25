@@ -175,7 +175,7 @@ function getMermaidConfig(pluginId: string): Parameters<typeof mermaid.initializ
       theme: "base" as const,
       themeVariables: {
         background: "transparent",
-        fontFamily: "'Noto Serif SC', serif",
+        fontFamily: "'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', serif",
         fontSize: "14px",
         primaryColor: "rgba(139, 90, 43, 0.2)",
         primaryTextColor: "#3a3a3a",
@@ -251,7 +251,7 @@ function getMermaidConfig(pluginId: string): Parameters<typeof mermaid.initializ
       theme: "base" as const,
       themeVariables: {
         background: "transparent",
-        fontFamily: "'Courier New', serif",
+        fontFamily: "'Garamond', 'Palatino Linotype', 'Georgia', 'Times New Roman', serif",
         fontSize: "14px",
         primaryColor: "rgba(139, 115, 85, 0.2)",
         primaryTextColor: "#3d3322",

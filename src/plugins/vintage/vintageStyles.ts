@@ -1,9 +1,9 @@
 export function getVintageStyles(): string {
   return `
 .vintage-slide {
-  font-family: 'Courier New', Courier, 'American Typewriter', Georgia, serif;
+  font-family: 'Garamond', 'Palatino Linotype', 'Georgia', 'Times New Roman', serif;
   color: #3d3322;
-  background: 
+  background:
     linear-gradient(rgba(245, 235, 200, 0.9), rgba(245, 235, 200, 0.9)),
     url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E");
   padding: 48px 64px;

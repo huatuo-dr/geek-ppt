@@ -1,7 +1,7 @@
 export function getInkStyles(): string {
   return `
 .ink-slide {
-  font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', 'STSong', serif;
+  font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', 'SimKai', serif;
   color: #2a2a2a;
   background: linear-gradient(135deg, #f5f5f0 0%, #e8e4dc 100%);
   padding: 48px 64px;
@@ -24,14 +24,14 @@ export function getInkStyles(): string {
 .ink-slide.scrolling::before {
   border-bottom: none;
 }
-.ink-slide h1 { 
-  font-size: 2.4em; 
-  font-weight: 700; 
-  margin: 0 0 0.6em; 
+.ink-slide h1 {
+  font-size: 2.4em;
+  font-weight: 700;
+  margin: 0 0 0.6em;
   text-align: center;
   color: #1a1a1a;
   text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-  font-family: 'Noto Serif SC', 'Kaiti SC', 'STKaiti', serif;
+  font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', '楷体', serif;
 }
 .ink-slide h2 { 
   font-size: 1.8em; 
