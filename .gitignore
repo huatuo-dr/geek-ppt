@@ -4,3 +4,6 @@ dist
 .DS_Store
 *.tsbuildinfo
 log.log
+.reference/
+preview/
+.geek-slides-preview/
