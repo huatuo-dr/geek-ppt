@@ -87,7 +87,11 @@ What feeling should the audience have?
 
 ### Step 2.3: Generate 3 Style Previews
 
-Based on mood, generate 3 distinct single-slide HTML previews. Each preview should be a self-contained HTML file (~60-100 lines) showing one animated title slide with the preset's fonts, colors, and signature elements.
+Based on mood, generate 3 distinct **single-slide** HTML previews. Each preview:
+- Self-contained HTML file (~60-100 lines)
+- Shows one title slide with the presentation's actual title/subtitle (from Phase 1 content)
+- Applies the preset's fonts, colors, and 1-2 signature elements
+- Includes a simple entrance animation so the user sees motion
 
 | Mood                | Suggested Presets                        |
 | ------------------- | ---------------------------------------- |
@@ -119,7 +123,7 @@ If "Mix elements," ask for specifics.
 
 1. **Single self-contained HTML file** — all CSS/JS inline
 2. **Include the FULL contents of base CSS** from [base-styles.md](base-styles.md)
-3. **Load fonts** from Google Fonts — include `&display=swap`, add `&subset=chinese-simplified` for CJK fonts
+3. **Load fonts** from Google Fonts — use the exact URL from the preset definition in [style-presets.md](style-presets.md), which already includes `&display=swap`. Add `&subset=chinese-simplified` for CJK fonts if not already present
 4. **Section comments** — every section needs `/* === SECTION NAME === */`
 5. **Semantic HTML** — use `<section>`, `<h1>`–`<h4>`, `<p>`, `<ul>`, proper heading hierarchy
 
