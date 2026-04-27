@@ -87,7 +87,11 @@ What feeling should the audience have?
 
 ### Step 2.3: Generate 3 Style Previews
 
-Based on mood, generate 3 distinct single-slide HTML previews. Each preview should be a self-contained HTML file (~60-100 lines) showing one animated title slide with the preset's fonts, colors, and signature elements.
+Based on mood, generate 3 distinct **single-slide** HTML previews. Each preview:
+- Self-contained HTML file (~60-100 lines)
+- Shows one title slide with the presentation's actual title/subtitle (from Phase 1 content)
+- Applies the preset's fonts, colors, and 1-2 signature elements
+- Includes a simple entrance animation so the user sees motion
 
 | Mood                | Suggested Presets                        |
 | ------------------- | ---------------------------------------- |
@@ -119,7 +123,7 @@ If "Mix elements," ask for specifics.
 
 1. **Single self-contained HTML file** — all CSS/JS inline
 2. **Include the FULL contents of base CSS** from [base-styles.md](base-styles.md)
-3. **Load fonts** from Google Fonts — include `&display=swap`, add `&subset=chinese-simplified` for CJK fonts
+3. **Load fonts** from Google Fonts — use the exact URL from the preset definition in [style-presets.md](style-presets.md), which already includes `&display=swap`. Add `&subset=chinese-simplified` for CJK fonts if not already present
 4. **Section comments** — every section needs `/* === SECTION NAME === */`
 5. **Semantic HTML** — use `<section>`, `<h1>`–`<h4>`, `<p>`, `<ul>`, proper heading hierarchy
 
@@ -171,6 +175,30 @@ Choose layouts based on content type. Available layouts from [layout-patterns.md
 | Image slide   | 1 heading + 1 image (max 60vh)            | 1 heading + 1 image (max 60vh)             |
 
 **Content exceeds limits? Split into multiple slides. Never cram, never scroll.**
+
+### Content Splitting Strategy
+
+When content overflows a single slide:
+1. **Bullet lists > 4 items (CJK)** — split at natural topic breaks, add a continuation header (e.g., "核心特性（续）")
+2. **Code blocks > 10 lines** — extract the most important fragment, add a "full code on next slide" note
+3. **Tables > 5 rows** — split into "overview" slide (top 3 rows) + "details" slide (remaining rows)
+4. **Mixed content (text + code + image)** — each content type gets its own slide
+
+### Font Loading Resilience
+
+Google Fonts may load slowly or fail (especially CJK fonts at ~2MB). The font stack in each preset already includes system fallbacks, so content remains readable during loading. No additional fallback logic is needed — `font-display: swap` handles this automatically.
+
+### Magic Move: When NOT to Use
+
+Skip `data-magic-id` assignment when:
+- Two slides have completely unrelated content (no semantic connection)
+- More than 4 elements would need to animate (visual clutter)
+- The transition is between a content-heavy slide and a minimal slide (jarring size changes)
+- Adjacent slides use the same layout with same element positions (no visible movement)
+
+### Entrance Animation Integration
+
+Every generated presentation MUST integrate `triggerEntrance()` from [slide-engine.md](slide-engine.md) into the slide controller. Call `triggerEntrance(toSlide)` in the `goToSlide()` method — specifically in the Magic Move `onComplete` callback and after the crossfade `setTimeout`. Without this, `.reveal` elements will stay invisible.
 
 ---
 
