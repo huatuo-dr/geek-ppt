@@ -1,6 +1,6 @@
 # Style Presets
 
-8 curated visual presets with CJK-aware font pairings. Each preset defines typography, colors, and signature design elements.
+9 curated visual presets with CJK-aware font pairings. Each preset defines typography, colors, and signature design elements.
 
 ---
 
